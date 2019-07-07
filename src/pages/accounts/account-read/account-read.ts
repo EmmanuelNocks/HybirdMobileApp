@@ -17,36 +17,53 @@ import { TabsPage } from '../../tabs/tabs/tabs';
 export class AccountReadPage {
 
   accountNum:number;
-  accountData:any={balance: 0,overdraft: 0};
+  accountDetail:any={balance: 0,overdraft: 0};
 
   constructor( private app:App ,public navCtrl: NavController, public navParams: NavParams, public mmi_request:MmiServiceProvider,public notify: MmiNotifyProvider) {
-    this.accountNum = parseInt(window.sessionStorage.getItem('currectAccount'));
+   
 
-    this.getAccounts(this.accountNum);
   }
 
 
   // using this since the constructor of tabs get called once
   ionViewWillEnter(){
     this.accountNum = parseInt(window.sessionStorage.getItem('currectAccount'));
-    this.getAccounts(this.accountNum);
+    this.getAccountDetail(this.accountNum);
   }
 
-  public getAccounts(account){
+  public getAccountDetail(account){
 
   
-          let tempurl = this.mmi_request.clientDomainUrl+'accounts/'+account+'.json?auth='+window.sessionStorage.getItem('idToken');
-          this.mmi_request.apiGet(tempurl).subscribe((data) => {
+      try {
 
-               this.accountData = data;
+                let tempurl = this.mmi_request.clientDomainUrl+'accounts/'+account+'.json?auth='+window.sessionStorage.getItem('idToken');
+                this.mmi_request.apiGet(tempurl).subscribe((response) => {
 
-          },
-          (error)=>{
+                    if(response){
 
-              this.notify.alertCtr('Accounts Error','Could not save');
-              this.notify.alert.present();              
+                        this.accountDetail = response;
+                    }
+                    else{
+                        
+                        this.notify.alertCtr('Accounts Error','Could not get the details');
+                        this.notify.alert.present(); 
+                    }
 
-          });
+                },
+                (error)=>{
+
+                    this.notify.alertCtr('Accounts Error','Could not get the details');
+                    this.notify.alert.present();              
+
+                });
+        
+      } 
+      catch (error) {
+        
+              this.notify.alertCtr('Accounts Error',error);
+              this.notify.alert.present(); 
+      }
+
 
    
   }

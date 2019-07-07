@@ -16,11 +16,11 @@
 
   <ion-card>
     <ion-card-header>
-      Name: {{data.name}} | Age: {{data.age}}
+      Name: {{clientData?.name}} | Age: {{clientData?.age}}
     </ion-card-header>
     <ion-card-content>
       <ion-list>
-        <button ion-item *ngFor="let account of data.accounts" (click)="accountSelected(account)">
+        <button ion-item *ngFor="let account of clientData?.accounts" (click)="accountSelected(account)">
           {{ account }}
           <ion-icon name="arrow-dropright" item-end></ion-icon>
         </button>  

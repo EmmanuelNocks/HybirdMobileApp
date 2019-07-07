@@ -76,42 +76,37 @@ var LoginPage = /** @class */ (function () {
             returnSecureToken: true
         };
     }
-    // ionViewDidLoad() {
-    //   console.log('ionViewDidLoad LoginPage');
-    // }
     LoginPage.prototype.login = function () {
-        //     let  body = {
-        //       email: "bob@email.com",
-        //       password: "password",
-        //       returnSecureToken: true
-        // }
         var _this = this;
-        if (this.data.email && this.data.password) {
-            this.notify.loaderCtr("Authenticating...");
-            this.notify.loader.present();
-            this.mmi_request.apiPost(this.data, this.mmi_request.authUrl).subscribe(function (data) {
-                //try catch in here for in case of unexpected data   
-                try {
-                    window.sessionStorage.setItem('idToken', data.idToken);
-                    window.sessionStorage.setItem('localId', data.localId);
+        try {
+            if (this.data.email && this.data.password) {
+                this.notify.loaderCtr("Authenticating...");
+                this.notify.loader.present();
+                this.mmi_request.apiPost(this.data, this.mmi_request.authUrl).subscribe(function (response) {
+                    if (response) {
+                        window.sessionStorage.setItem('idToken', response.idToken);
+                        window.sessionStorage.setItem('localId', response.localId);
+                        _this.notify.loader.dismiss();
+                        _this.navCtrl.setRoot(__WEBPACK_IMPORTED_MODULE_4__tabs_tabs_tabs__["a" /* TabsPage */]);
+                    }
+                    else {
+                        _this.notify.loader.dismiss();
+                        _this.notify.toastCtr("Error while trying to login");
+                        _this.notify.toast.present();
+                    }
+                }, function (error) {
                     _this.notify.loader.dismiss();
-                    _this.navCtrl.setRoot(__WEBPACK_IMPORTED_MODULE_4__tabs_tabs_tabs__["a" /* TabsPage */]);
-                }
-                catch (error) {
-                    _this.notify.loader.dismiss();
-                    _this.notify.toastCtr("Error while trying to login");
+                    var msg = error.status != 0 ? JSON.parse(error._body).error.message : 'Connection problem';
+                    _this.notify.toastCtr(msg);
                     _this.notify.toast.present();
-                }
-            }, function (error) {
-                _this.notify.loader.dismiss();
-                var msg = error.status != 0 ? JSON.parse(error._body).error.message : 'Connection problem';
-                _this.notify.toastCtr(msg);
-                _this.notify.toast.present();
-            });
+                });
+            }
+            else {
+                this.notify.toastCtr("All fields are required");
+                this.notify.toast.present();
+            }
         }
-        else {
-            this.notify.toastCtr("All fields are required");
-            this.notify.toast.present();
+        catch (error) {
         }
     };
     LoginPage = __decorate([
@@ -165,35 +160,46 @@ var AccountsPage = /** @class */ (function () {
         this.navParams = navParams;
         this.mmi_request = mmi_request;
         this.notify = notify;
-        this.data = { accounts: [], age: 0, name: '' };
+        this.clientData = { accounts: [], age: 0, name: '' };
     }
     // using this since the constructor of tabs get called once
     AccountsPage.prototype.ionViewWillEnter = function () {
-        this.getAccounts();
+        this.getClientData();
     };
-    AccountsPage.prototype.getAccounts = function () {
+    AccountsPage.prototype.getClientData = function () {
         var _this = this;
-        var tempurl = this.mmi_request.clientDomainUrl + 'clients/' + window.sessionStorage.getItem('localId') + '.json?auth=' + window.sessionStorage.getItem('idToken');
-        this.mmi_request.apiGet(tempurl).subscribe(function (data) {
-            _this.data = data;
-            console.log(data);
-        }, function (error) {
-            _this.notify.alertCtr('Accounts Error', 'Could not save');
-            _this.notify.alert.present();
-        });
+        try {
+            var tempurl = this.mmi_request.clientDomainUrl + 'clients/' + window.sessionStorage.getItem('localId') + '.json?auth=' + window.sessionStorage.getItem('idToken');
+            this.mmi_request.apiGet(tempurl).subscribe(function (response) {
+                if (response) {
+                    _this.clientData = response;
+                }
+                else {
+                    _this.notify.alertCtr('Accounts Error', 'Could not get the accounts');
+                    _this.notify.alert.present();
+                }
+            }, function (error) {
+                _this.notify.alertCtr('Accounts Error', 'Could not get the accounts');
+                _this.notify.alert.present();
+            });
+        }
+        catch (error) {
+            this.notify.alertCtr('Accounts Error', error);
+            this.notify.alert.present();
+        }
     };
     AccountsPage.prototype.accountSelected = function (acc) {
         window.sessionStorage.setItem('currectAccount', acc);
-        //this.navCtrl.push(DetailedTabPage);
         this.app.getRootNav().setRoot(__WEBPACK_IMPORTED_MODULE_4__tabs_detailed_tab_detailed_tab__["a" /* DetailedTabPage */]);
     };
     AccountsPage = __decorate([
         Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["m" /* Component */])({
-            selector: 'page-accounts',template:/*ion-inline-start:"/home/emmanuel.mulea/Desktop/HybirdMobileApp/src/pages/accounts/accounts/accounts.html"*/'<!--\n  Generated template for the AccountsPage page.\n\n  See http://ionicframework.com/docs/components/#navigation for more info on\n  Ionic pages and navigation.\n-->\n<ion-header>\n  <ion-navbar>\n    <ion-title>Accounts</ion-title>\n\n  </ion-navbar>\n</ion-header>\n\n<ion-content padding>\n\n\n  <ion-card>\n    <ion-card-header>\n      Name: {{data.name}} | Age: {{data.age}}\n    </ion-card-header>\n    <ion-card-content>\n      <ion-list>\n        <button ion-item *ngFor="let account of data.accounts" (click)="accountSelected(account)">\n          {{ account }}\n          <ion-icon name="arrow-dropright" item-end></ion-icon>\n        </button>  \n      </ion-list>\n    </ion-card-content>\n  </ion-card>\n</ion-content>\n'/*ion-inline-end:"/home/emmanuel.mulea/Desktop/HybirdMobileApp/src/pages/accounts/accounts/accounts.html"*/,
+            selector: 'page-accounts',template:/*ion-inline-start:"/home/emmanuel.mulea/Desktop/HybirdMobileApp/src/pages/accounts/accounts/accounts.html"*/'<!--\n  Generated template for the AccountsPage page.\n\n  See http://ionicframework.com/docs/components/#navigation for more info on\n  Ionic pages and navigation.\n-->\n<ion-header>\n  <ion-navbar>\n    <ion-title>Accounts</ion-title>\n\n  </ion-navbar>\n</ion-header>\n\n<ion-content padding>\n\n\n  <ion-card>\n    <ion-card-header>\n      Name: {{clientData?.name}} | Age: {{clientData?.age}}\n    </ion-card-header>\n    <ion-card-content>\n      <ion-list>\n        <button ion-item *ngFor="let account of clientData?.accounts" (click)="accountSelected(account)">\n          {{ account }}\n          <ion-icon name="arrow-dropright" item-end></ion-icon>\n        </button>  \n      </ion-list>\n    </ion-card-content>\n  </ion-card>\n</ion-content>\n'/*ion-inline-end:"/home/emmanuel.mulea/Desktop/HybirdMobileApp/src/pages/accounts/accounts/accounts.html"*/,
         }),
-        __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* App */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* NavController */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* NavParams */], __WEBPACK_IMPORTED_MODULE_2__providers_mmi_service_mmi_service__["a" /* MmiServiceProvider */], __WEBPACK_IMPORTED_MODULE_3__providers_mmi_notify_mmi_notify__["a" /* MmiNotifyProvider */]])
+        __metadata("design:paramtypes", [typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* App */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* App */]) === "function" && _a || Object, typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* NavController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* NavController */]) === "function" && _b || Object, typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* NavParams */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* NavParams */]) === "function" && _c || Object, typeof (_d = typeof __WEBPACK_IMPORTED_MODULE_2__providers_mmi_service_mmi_service__["a" /* MmiServiceProvider */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_2__providers_mmi_service_mmi_service__["a" /* MmiServiceProvider */]) === "function" && _d || Object, typeof (_e = typeof __WEBPACK_IMPORTED_MODULE_3__providers_mmi_notify_mmi_notify__["a" /* MmiNotifyProvider */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_3__providers_mmi_notify_mmi_notify__["a" /* MmiNotifyProvider */]) === "function" && _e || Object])
     ], AccountsPage);
     return AccountsPage;
+    var _a, _b, _c, _d, _e;
 }());
 
 //# sourceMappingURL=accounts.js.map
@@ -390,35 +396,46 @@ var AccountReadPage = /** @class */ (function () {
         this.navParams = navParams;
         this.mmi_request = mmi_request;
         this.notify = notify;
-        this.accountData = { balance: 0, overdraft: 0 };
-        this.accountNum = parseInt(window.sessionStorage.getItem('currectAccount'));
-        this.getAccounts(this.accountNum);
+        this.accountDetail = { balance: 0, overdraft: 0 };
     }
     // using this since the constructor of tabs get called once
     AccountReadPage.prototype.ionViewWillEnter = function () {
         this.accountNum = parseInt(window.sessionStorage.getItem('currectAccount'));
-        this.getAccounts(this.accountNum);
+        this.getAccountDetail(this.accountNum);
     };
-    AccountReadPage.prototype.getAccounts = function (account) {
+    AccountReadPage.prototype.getAccountDetail = function (account) {
         var _this = this;
-        var tempurl = this.mmi_request.clientDomainUrl + 'accounts/' + account + '.json?auth=' + window.sessionStorage.getItem('idToken');
-        this.mmi_request.apiGet(tempurl).subscribe(function (data) {
-            _this.accountData = data;
-        }, function (error) {
-            _this.notify.alertCtr('Accounts Error', 'Could not save');
-            _this.notify.alert.present();
-        });
+        try {
+            var tempurl = this.mmi_request.clientDomainUrl + 'accounts/' + account + '.json?auth=' + window.sessionStorage.getItem('idToken');
+            this.mmi_request.apiGet(tempurl).subscribe(function (response) {
+                if (response) {
+                    _this.accountDetail = response;
+                }
+                else {
+                    _this.notify.alertCtr('Accounts Error', 'Could not get the details');
+                    _this.notify.alert.present();
+                }
+            }, function (error) {
+                _this.notify.alertCtr('Accounts Error', 'Could not get the details');
+                _this.notify.alert.present();
+            });
+        }
+        catch (error) {
+            this.notify.alertCtr('Accounts Error', error);
+            this.notify.alert.present();
+        }
     };
     AccountReadPage.prototype.GotoMain = function () {
         this.app.getRootNav().push(__WEBPACK_IMPORTED_MODULE_4__tabs_tabs_tabs__["a" /* TabsPage */]);
     };
     AccountReadPage = __decorate([
         Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["m" /* Component */])({
-            selector: 'page-account-read',template:/*ion-inline-start:"/home/emmanuel.mulea/Desktop/HybirdMobileApp/src/pages/accounts/account-read/account-read.html"*/'<!--\n  Generated template for the AccountReadPage page.\n\n  See http://ionicframework.com/docs/components/#navigation for more info on\n  Ionic pages and navigation.\n-->\n<ion-header>\n  <ion-navbar>\n    <ion-title>Account</ion-title>\n    <ion-buttons end>\n        <button ion-button button-right (click)="GotoMain()" >\n            back\n      </button>\n      </ion-buttons>\n  </ion-navbar>\n</ion-header>\n\n<ion-content padding>\n  <ion-card>\n    <ion-card-header>\n      Account No: {{accountNum}}\n    </ion-card-header>\n    <ion-card-content>\n      <ion-grid>\n        <ion-row>\n          <ion-col col-4>Balance :</ion-col>\n          <ion-col col-8>{{accountData.balance}}</ion-col>\n        </ion-row>\n        <ion-row>\n          <ion-col col-4>Overdraft :</ion-col>\n          <ion-col col-6>{{accountData.overdraft}}</ion-col>\n        </ion-row>\n      </ion-grid>\n    </ion-card-content>\n  </ion-card>\n</ion-content>\n'/*ion-inline-end:"/home/emmanuel.mulea/Desktop/HybirdMobileApp/src/pages/accounts/account-read/account-read.html"*/,
+            selector: 'page-account-read',template:/*ion-inline-start:"/home/emmanuel.mulea/Desktop/HybirdMobileApp/src/pages/accounts/account-read/account-read.html"*/'<!--\n  Generated template for the AccountReadPage page.\n\n  See http://ionicframework.com/docs/components/#navigation for more info on\n  Ionic pages and navigation.\n-->\n<ion-header>\n  <ion-navbar>\n    <ion-title>Account</ion-title>\n    <ion-buttons end>\n        <button ion-button button-right (click)="GotoMain()" >\n            back\n      </button>\n      </ion-buttons>\n  </ion-navbar>\n</ion-header>\n\n<ion-content padding>\n  <ion-card>\n    <ion-card-header>\n      Account No: {{accountNum}}\n    </ion-card-header>\n    <ion-card-content>\n      <ion-grid>\n        <ion-row>\n          <ion-col col-4>Balance :</ion-col>\n          <ion-col col-8>{{accountDetail?.balance}}</ion-col>\n        </ion-row>\n        <ion-row>\n          <ion-col col-4>Overdraft :</ion-col>\n          <ion-col col-6>{{accountDetail?.overdraft}}</ion-col>\n        </ion-row>\n      </ion-grid>\n    </ion-card-content>\n  </ion-card>\n</ion-content>\n'/*ion-inline-end:"/home/emmanuel.mulea/Desktop/HybirdMobileApp/src/pages/accounts/account-read/account-read.html"*/,
         }),
-        __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* App */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* NavController */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* NavParams */], __WEBPACK_IMPORTED_MODULE_2__providers_mmi_service_mmi_service__["a" /* MmiServiceProvider */], __WEBPACK_IMPORTED_MODULE_3__providers_mmi_notify_mmi_notify__["a" /* MmiNotifyProvider */]])
+        __metadata("design:paramtypes", [typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* App */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* App */]) === "function" && _a || Object, typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* NavController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* NavController */]) === "function" && _b || Object, typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* NavParams */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* NavParams */]) === "function" && _c || Object, typeof (_d = typeof __WEBPACK_IMPORTED_MODULE_2__providers_mmi_service_mmi_service__["a" /* MmiServiceProvider */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_2__providers_mmi_service_mmi_service__["a" /* MmiServiceProvider */]) === "function" && _d || Object, typeof (_e = typeof __WEBPACK_IMPORTED_MODULE_3__providers_mmi_notify_mmi_notify__["a" /* MmiNotifyProvider */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_3__providers_mmi_notify_mmi_notify__["a" /* MmiNotifyProvider */]) === "function" && _e || Object])
     ], AccountReadPage);
     return AccountReadPage;
+    var _a, _b, _c, _d, _e;
 }());
 
 //# sourceMappingURL=account-read.js.map
@@ -551,21 +568,20 @@ var AccountCreatePage = /** @class */ (function () {
         this.mmi_request = mmi_request;
         this.notify = notify;
         this.alertCtrl = alertCtrl;
-        this.accountList = { accounts: [], age: 42, name: 'Bob Builder' }; // giving default values if it happens that json structure changes from api
+        this.clientData = { accounts: [], age: 0, name: '' }; // giving default values if it happens that json structure changes from api
         this.accountData = { balance: 0, overdraft: 0 };
     }
     // using this since the constructor of tabs get called once
     AccountCreatePage.prototype.ionViewWillEnter = function () {
         this.accountNum = Math.floor(1000000 + Math.random() * 900000);
-        this.getAccounts();
+        this.getClientData();
     };
     AccountCreatePage.prototype.saveNewAcc = function () {
         var _this = this;
         if (this.accountNum > 0) {
-            this.accountList.accounts.push(parseFloat(this.accountNum));
+            this.clientData.accounts.push(parseFloat(this.accountNum));
             var tempurl = this.mmi_request.clientDomainUrl + 'clients/' + window.sessionStorage.getItem('localId') + '.json?auth=' + window.sessionStorage.getItem('idToken');
-            this.mmi_request.apiPut(this.accountList, tempurl).subscribe(function (data) {
-                _this.updateOnAccountCreate(_this.accountNum);
+            this.mmi_request.apiPut(this.clientData, tempurl).subscribe(function (data) {
                 _this.accountNum = null;
                 _this.notify.alertCtr('Account', 'Successful Saved!');
                 _this.notify.alert.present();
@@ -579,23 +595,13 @@ var AccountCreatePage = /** @class */ (function () {
             this.notify.alert.present();
         }
     };
-    AccountCreatePage.prototype.getAccounts = function () {
+    AccountCreatePage.prototype.getClientData = function () {
         var _this = this;
         var tempurl = this.mmi_request.clientDomainUrl + 'clients/' + window.sessionStorage.getItem('localId') + '.json?auth=' + window.sessionStorage.getItem('idToken');
         this.mmi_request.apiGet(tempurl).subscribe(function (data) {
-            _this.accountList = data;
+            _this.clientData = data;
         }, function (error) {
             _this.notify.alertCtr('Accounts Error', 'Could not fetch accounts');
-            _this.notify.alert.present();
-        });
-    };
-    //update balances
-    AccountCreatePage.prototype.updateOnAccountCreate = function (acc) {
-        var _this = this;
-        var tempurl = this.mmi_request.clientDomainUrl + 'accounts/' + acc + '.json?auth=' + window.sessionStorage.getItem('idToken');
-        this.mmi_request.apiPut(this.accountData, tempurl).subscribe(function (data) {
-        }, function (error) {
-            _this.notify.alertCtr('Account', 'Error occured!');
             _this.notify.alert.present();
         });
     };
@@ -603,9 +609,10 @@ var AccountCreatePage = /** @class */ (function () {
         Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["m" /* Component */])({
             selector: 'page-account-create',template:/*ion-inline-start:"/home/emmanuel.mulea/Desktop/HybirdMobileApp/src/pages/accounts/account-create/account-create.html"*/'<!--\n  Generated template for the AccountCreatePage page.\n\n  See http://ionicframework.com/docs/components/#navigation for more info on\n  Ionic pages and navigation.\n-->\n<ion-header>\n  <ion-navbar>\n    <ion-title>New Account </ion-title>\n  </ion-navbar>\n</ion-header>\n\n<ion-content padding>\n  <ion-content padding>\n\n    <ion-card>\n      \n        <ion-card-content>\n            <ion-list>\n  \n                <ion-item>\n                  <ion-label floating>Account No.</ion-label>\n                  <ion-input   [(ngModel)]="accountNum" type="number"></ion-input>\n                </ion-item>\n          \n              \n              </ion-list>\n              <div padding>\n                  <button ion-button (click)="saveNewAcc()" block>Save</button>\n                </div>\n        </ion-card-content>\n      </ion-card>\n    \n</ion-content>\n'/*ion-inline-end:"/home/emmanuel.mulea/Desktop/HybirdMobileApp/src/pages/accounts/account-create/account-create.html"*/,
         }),
-        __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* NavController */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* NavParams */], __WEBPACK_IMPORTED_MODULE_2__providers_mmi_service_mmi_service__["a" /* MmiServiceProvider */], __WEBPACK_IMPORTED_MODULE_3__providers_mmi_notify_mmi_notify__["a" /* MmiNotifyProvider */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */]])
+        __metadata("design:paramtypes", [typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* NavController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* NavController */]) === "function" && _a || Object, typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* NavParams */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* NavParams */]) === "function" && _b || Object, typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_2__providers_mmi_service_mmi_service__["a" /* MmiServiceProvider */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_2__providers_mmi_service_mmi_service__["a" /* MmiServiceProvider */]) === "function" && _c || Object, typeof (_d = typeof __WEBPACK_IMPORTED_MODULE_3__providers_mmi_notify_mmi_notify__["a" /* MmiNotifyProvider */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_3__providers_mmi_notify_mmi_notify__["a" /* MmiNotifyProvider */]) === "function" && _d || Object, typeof (_e = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */]) === "function" && _e || Object])
     ], AccountCreatePage);
     return AccountCreatePage;
+    var _a, _b, _c, _d, _e;
 }());
 
 //# sourceMappingURL=account-create.js.map
@@ -835,9 +842,10 @@ var MmiServiceProvider = /** @class */ (function () {
     };
     MmiServiceProvider = __decorate([
         Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */])(),
-        __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1__angular_http__["b" /* Http */]])
+        __metadata("design:paramtypes", [typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1__angular_http__["b" /* Http */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1__angular_http__["b" /* Http */]) === "function" && _a || Object])
     ], MmiServiceProvider);
     return MmiServiceProvider;
+    var _a;
 }());
 
 //# sourceMappingURL=mmi-service.js.map

@@ -29,48 +29,53 @@ export class LoginPage {
 
   login(){
 
-//     let  body = {
-//       email: "bob@email.com",
-//       password: "password",
-//       returnSecureToken: true
-// }
-
-if(this.data.email && this.data.password){
-    this.notify.loaderCtr("Authenticating...");
-    this.notify.loader.present();
-    this.mmi_request.apiPost(this.data,this.mmi_request.authUrl).subscribe((data) => {
-      //try catch in here for in case of unexpected data   
       try {
-            
-            window.sessionStorage.setItem('idToken',data.idToken);
-            window.sessionStorage.setItem('localId',data.localId);
 
-            this.notify.loader.dismiss();
-            this.navCtrl.setRoot(TabsPage);
+              if(this.data.email && this.data.password){
+
+                  this.notify.loaderCtr("Authenticating...");
+                  this.notify.loader.present();
+
+                  this.mmi_request.apiPost(this.data,this.mmi_request.authUrl).subscribe((response) => {
+                     
+                          
+                            if(response){
+                              
+                                  window.sessionStorage.setItem('idToken',response.idToken);
+                                  window.sessionStorage.setItem('localId',response.localId);
+
+                                  this.notify.loader.dismiss();
+                                  this.navCtrl.setRoot(TabsPage);
+                          
+                            }
+                            else{
+
+                                  this.notify.loader.dismiss();
+                                  this.notify.toastCtr("Error while trying to login");
+                                  this.notify.toast.present();
+                            }
+                          
+                        
+                    },
+                    (error)=>{
+
+                              this.notify.loader.dismiss();
+                              let msg = error.status !=0? JSON.parse(error._body).error.message:'Connection problem';
+                              this.notify.toastCtr(msg);
+                              this.notify.toast.present();
+                      
+                    });
+
+                }
+                else{
+
+                  this.notify.toastCtr("All fields are required");
+                  this.notify.toast.present();
+                }
           }   
-        catch (error) {
-
-            this.notify.loader.dismiss();
-            this.notify.toastCtr("Error while trying to login");
-            this.notify.toast.present();
+          catch (error) {
+  
             
           }
-},
-(error)=>{
-
-          this.notify.loader.dismiss();
-          let msg = error.status !=0? JSON.parse(error._body).error.message:'Connection problem';
-          this.notify.toastCtr(msg);
-          this.notify.toast.present();
-  
-});
-
-  }
-  else{
-
-    this.notify.toastCtr("All fields are required");
-    this.notify.toast.present();
-  }
-
   }
 }

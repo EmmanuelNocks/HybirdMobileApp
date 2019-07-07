@@ -23,7 +23,7 @@ constructor(public http: Http) {
 
 public apiGet(endpoint){
 
-return this.http.get(endpoint).map(this.getData).catch(this.handleErrorObservable);
+      return this.http.get(endpoint).map(this.getData).catch(this.handleErrorObservable);
 
 }
 
@@ -32,6 +32,7 @@ public apiPost(body,endpoint) {
   
       let headers = new Headers({ 'Content-Type': 'application/json' });
       let options = new RequestOptions({ headers: headers });
+      
       return this.http.post(endpoint, JSON.stringify(body), options)
                   .map(this.getData)
                   .catch(this.handleErrorObservable);
@@ -40,22 +41,24 @@ public apiPost(body,endpoint) {
 public apiPut(body,endpoint) {
 
   
-    let headers = new Headers({ 'Content-Type': 'application/json' });
-    let options = new RequestOptions({ headers: headers });
-          
-    return this.http.put(endpoint, JSON.stringify(body), options)
+      let headers = new Headers({ 'Content-Type': 'application/json' });
+      let options = new RequestOptions({ headers: headers });
+            
+      return this.http.put(endpoint, JSON.stringify(body), options)
                       .map(this.getData)
                       .catch(this.handleErrorObservable);
       }
 
 private getData(res: Response) {
    
-  let body = res.json();
-          return body || {};
+      let body = res.json();
+      
+      return body || {};
+
       }
 
 private handleErrorObservable (error: Response | any) {
 
-    return Observable.throw(error.message || error);
+       return Observable.throw(error.message || error);
       }
 }
