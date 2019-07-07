@@ -16,7 +16,7 @@ your Node is now installed
 3 type `npm install -g ionic`  or on Mac/Linux `npm install -g ionic --unsafe-perm=true --allow-root`
 
 
-## Steps To run on browser(Linux)
+## Steps To run on browser
 1. open root dir and navigate to app folder using a terminal
 2. type  `npm install` or on Mac/Linux `npm install --unsafe-perm=true --allow-root`
 3. type `ionic serve` in the terminal
