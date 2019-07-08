@@ -1,6 +1,6 @@
 webpackJsonp([0],{
 
-/***/ 161:
+/***/ 160:
 /***/ (function(module, exports) {
 
 function webpackEmptyAsyncContext(req) {
@@ -13,11 +13,11 @@ function webpackEmptyAsyncContext(req) {
 webpackEmptyAsyncContext.keys = function() { return []; };
 webpackEmptyAsyncContext.resolve = webpackEmptyAsyncContext;
 module.exports = webpackEmptyAsyncContext;
-webpackEmptyAsyncContext.id = 161;
+webpackEmptyAsyncContext.id = 160;
 
 /***/ }),
 
-/***/ 206:
+/***/ 205:
 /***/ (function(module, exports) {
 
 function webpackEmptyAsyncContext(req) {
@@ -30,20 +30,20 @@ function webpackEmptyAsyncContext(req) {
 webpackEmptyAsyncContext.keys = function() { return []; };
 webpackEmptyAsyncContext.resolve = webpackEmptyAsyncContext;
 module.exports = webpackEmptyAsyncContext;
-webpackEmptyAsyncContext.id = 206;
+webpackEmptyAsyncContext.id = 205;
 
 /***/ }),
 
-/***/ 252:
+/***/ 251:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return LoginPage; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(29);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__providers_mmi_service_mmi_service__ = __webpack_require__(43);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__providers_mmi_notify_mmi_notify__ = __webpack_require__(44);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__tabs_tabs_tabs__ = __webpack_require__(63);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__providers_mmi_service_mmi_service__ = __webpack_require__(42);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__providers_mmi_notify_mmi_notify__ = __webpack_require__(43);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__tabs_tabs_tabs__ = __webpack_require__(62);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -76,42 +76,53 @@ var LoginPage = /** @class */ (function () {
             returnSecureToken: true
         };
     }
-    LoginPage.prototype.login = function () {
+    LoginPage.prototype.handleAuthenticationError = function (error) {
+        this.notify.dismissLoading();
+        var msg = error.status != 0 ? JSON.parse(error._body).error.message : 'Connection problem';
+        this.notify.presentToast(msg);
+    };
+    LoginPage.prototype.setUserSession = function (token, localId) {
+        window.sessionStorage.setItem('idToken', token);
+        window.sessionStorage.setItem('localId', localId);
+    };
+    LoginPage.prototype.getResponse = function (response) {
+        if (response) {
+            this.setUserSession(response.idToken, response.localId);
+            this.notify.dismissLoading();
+            this.navCtrl.setRoot(__WEBPACK_IMPORTED_MODULE_4__tabs_tabs_tabs__["a" /* TabsPage */]);
+        }
+        else {
+            this.notify.dismissLoading();
+            this.notify.presentToast("Error while trying to login");
+        }
+    };
+    LoginPage.prototype.sendRequest = function (body) {
         var _this = this;
+        this.notify.presentLoading('Authenticating...');
+        this.mmi_request.apiPost(body, this.mmi_request.authUrl).subscribe(function (response) {
+            _this.getResponse(response);
+        }, function (error) {
+            _this.handleAuthenticationError(error);
+        });
+    };
+    LoginPage.prototype.validateInputUser = function () {
         try {
             if (this.data.email && this.data.password) {
-                this.notify.loaderCtr("Authenticating...");
-                this.notify.loader.present();
-                this.mmi_request.apiPost(this.data, this.mmi_request.authUrl).subscribe(function (response) {
-                    if (response) {
-                        window.sessionStorage.setItem('idToken', response.idToken);
-                        window.sessionStorage.setItem('localId', response.localId);
-                        _this.notify.loader.dismiss();
-                        _this.navCtrl.setRoot(__WEBPACK_IMPORTED_MODULE_4__tabs_tabs_tabs__["a" /* TabsPage */]);
-                    }
-                    else {
-                        _this.notify.loader.dismiss();
-                        _this.notify.toastCtr("Error while trying to login");
-                        _this.notify.toast.present();
-                    }
-                }, function (error) {
-                    _this.notify.loader.dismiss();
-                    var msg = error.status != 0 ? JSON.parse(error._body).error.message : 'Connection problem';
-                    _this.notify.toastCtr(msg);
-                    _this.notify.toast.present();
-                });
+                this.sendRequest(this.data);
             }
             else {
-                this.notify.toastCtr("All fields are required");
-                this.notify.toast.present();
+                this.notify.presentToast("All fields are required");
             }
         }
         catch (error) {
         }
     };
+    LoginPage.prototype.login = function () {
+        this.validateInputUser();
+    };
     LoginPage = __decorate([
-        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["m" /* Component */])({
-            selector: 'page-login',template:/*ion-inline-start:"C:\Users\emmanuel.mulea\Desktop\HybirdMobileApp\src\pages\login\login.html"*/'<!--\n\n  Generated template for the LoginPage page.\n\n\n\n  See http://ionicframework.com/docs/components/#navigation for more info on\n\n  Ionic pages and navigation.\n\n-->\n\n<ion-header>\n\n  <ion-navbar>\n\n    <ion-title>login</ion-title>\n\n  </ion-navbar>\n\n</ion-header>\n\n\n\n<ion-content padding>\n\n  <ion-list>\n\n\n\n    <ion-item>\n\n      <ion-label floating>Username</ion-label>\n\n      <ion-input required [(ngModel)]="data.email" type="text"></ion-input>\n\n    </ion-item>\n\n  \n\n    <ion-item>\n\n      <ion-label floating>Password</ion-label>\n\n      <ion-input required [(ngModel)]="data.password" type="password"></ion-input>\n\n    </ion-item>\n\n  \n\n  </ion-list>\n\n  \n\n  <div padding>\n\n    <button ion-button (click)="login()" block>Sign In</button>\n\n  </div>\n\n</ion-content>\n\n'/*ion-inline-end:"C:\Users\emmanuel.mulea\Desktop\HybirdMobileApp\src\pages\login\login.html"*/,
+        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["n" /* Component */])({
+            selector: 'page-login',template:/*ion-inline-start:"/home/emmanuel.mulea/Desktop/HybirdMobileApp/src/pages/login/login.html"*/'<!--\n  Generated template for the LoginPage page.\n\n  See http://ionicframework.com/docs/components/#navigation for more info on\n  Ionic pages and navigation.\n-->\n<ion-header>\n  <ion-navbar>\n    <ion-title>login</ion-title>\n  </ion-navbar>\n</ion-header>\n\n<ion-content padding>\n  <ion-list>\n\n    <ion-item>\n      <ion-label floating>Username</ion-label>\n      <ion-input required [(ngModel)]="data.email" type="text"></ion-input>\n    </ion-item>\n  \n    <ion-item>\n      <ion-label floating>Password</ion-label>\n      <ion-input required [(ngModel)]="data.password" type="password"></ion-input>\n    </ion-item>\n  \n  </ion-list>\n  \n  <div padding>\n    <button ion-button (click)="login()" block>Sign In</button>\n  </div>\n</ion-content>\n'/*ion-inline-end:"/home/emmanuel.mulea/Desktop/HybirdMobileApp/src/pages/login/login.html"*/,
         }),
         __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* NavController */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* NavParams */], __WEBPACK_IMPORTED_MODULE_2__providers_mmi_service_mmi_service__["a" /* MmiServiceProvider */], __WEBPACK_IMPORTED_MODULE_3__providers_mmi_notify_mmi_notify__["a" /* MmiNotifyProvider */]])
     ], LoginPage);
@@ -122,16 +133,16 @@ var LoginPage = /** @class */ (function () {
 
 /***/ }),
 
-/***/ 346:
+/***/ 345:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return AccountsPage; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(29);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__providers_mmi_service_mmi_service__ = __webpack_require__(43);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__providers_mmi_notify_mmi_notify__ = __webpack_require__(44);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__tabs_detailed_tab_detailed_tab__ = __webpack_require__(347);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__providers_mmi_service_mmi_service__ = __webpack_require__(42);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__providers_mmi_notify_mmi_notify__ = __webpack_require__(43);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__tabs_detailed_tab_detailed_tab__ = __webpack_require__(346);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -163,28 +174,31 @@ var AccountsPage = /** @class */ (function () {
     }
     // using this since the constructor of tabs get called once
     AccountsPage.prototype.ionViewWillEnter = function () {
+        this.fullEndpoint = this.mmi_request.clientDomainUrl + 'clients/' + window.sessionStorage.getItem('localId') + '.json?auth=' + window.sessionStorage.getItem('idToken');
         this.getClientData();
     };
-    AccountsPage.prototype.getClientData = function () {
+    AccountsPage.prototype.getResponse = function (response) {
+        if (response) {
+            this.clientData = response;
+        }
+        else {
+            this.notify.presentAlert('Accounts Error', 'Could not get the accounts');
+        }
+    };
+    AccountsPage.prototype.sendRequest = function () {
         var _this = this;
+        this.mmi_request.apiGet(this.fullEndpoint).subscribe(function (response) {
+            _this.getResponse(response);
+        }, function (error) {
+            _this.notify.presentAlert('Accounts Error', 'Could not get the accounts');
+        });
+    };
+    AccountsPage.prototype.getClientData = function () {
         try {
-            var tempurl = this.mmi_request.clientDomainUrl + 'clients/' + window.sessionStorage.getItem('localId') + '.json?auth=' + window.sessionStorage.getItem('idToken');
-            this.mmi_request.apiGet(tempurl).subscribe(function (response) {
-                if (response) {
-                    _this.clientData = response;
-                }
-                else {
-                    _this.notify.alertCtr('Accounts Error', 'Could not get the accounts');
-                    _this.notify.alert.present();
-                }
-            }, function (error) {
-                _this.notify.alertCtr('Accounts Error', 'Could not get the accounts');
-                _this.notify.alert.present();
-            });
+            this.sendRequest();
         }
         catch (error) {
-            this.notify.alertCtr('Accounts Error', error);
-            this.notify.alert.present();
+            this.notify.presentAlert('Accounts Error', error);
         }
     };
     AccountsPage.prototype.accountSelected = function (acc) {
@@ -192,8 +206,8 @@ var AccountsPage = /** @class */ (function () {
         this.app.getRootNav().setRoot(__WEBPACK_IMPORTED_MODULE_4__tabs_detailed_tab_detailed_tab__["a" /* DetailedTabPage */]);
     };
     AccountsPage = __decorate([
-        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["m" /* Component */])({
-            selector: 'page-accounts',template:/*ion-inline-start:"C:\Users\emmanuel.mulea\Desktop\HybirdMobileApp\src\pages\accounts\accounts\accounts.html"*/'<!--\n\n  Generated template for the AccountsPage page.\n\n\n\n  See http://ionicframework.com/docs/components/#navigation for more info on\n\n  Ionic pages and navigation.\n\n-->\n\n<ion-header>\n\n  <ion-navbar>\n\n    <ion-title>Accounts</ion-title>\n\n\n\n  </ion-navbar>\n\n</ion-header>\n\n\n\n<ion-content padding>\n\n\n\n\n\n  <ion-card>\n\n    <ion-card-header>\n\n      Name: {{clientData?.name}} | Age: {{clientData?.age}}\n\n    </ion-card-header>\n\n    <ion-card-content>\n\n      <ion-list>\n\n        <button ion-item *ngFor="let account of clientData?.accounts" (click)="accountSelected(account)">\n\n          {{ account }}\n\n          <ion-icon name="arrow-dropright" item-end></ion-icon>\n\n        </button>  \n\n      </ion-list>\n\n    </ion-card-content>\n\n  </ion-card>\n\n</ion-content>\n\n'/*ion-inline-end:"C:\Users\emmanuel.mulea\Desktop\HybirdMobileApp\src\pages\accounts\accounts\accounts.html"*/,
+        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["n" /* Component */])({
+            selector: 'page-accounts',template:/*ion-inline-start:"/home/emmanuel.mulea/Desktop/HybirdMobileApp/src/pages/accounts/accounts/accounts.html"*/'<!--\n  Generated template for the AccountsPage page.\n\n  See http://ionicframework.com/docs/components/#navigation for more info on\n  Ionic pages and navigation.\n-->\n<ion-header>\n  <ion-navbar>\n    <ion-title>Accounts</ion-title>\n\n  </ion-navbar>\n</ion-header>\n\n<ion-content padding>\n\n\n  <ion-card>\n    <ion-card-header>\n      Name: {{clientData?.name}} | Age: {{clientData?.age}}\n    </ion-card-header>\n    <ion-card-content>\n      <ion-list>\n        <button ion-item *ngFor="let account of clientData?.accounts" (click)="accountSelected(account)">\n          {{ account }}\n          <ion-icon name="arrow-dropright" item-end></ion-icon>\n        </button>  \n      </ion-list>\n    </ion-card-content>\n  </ion-card>\n</ion-content>\n'/*ion-inline-end:"/home/emmanuel.mulea/Desktop/HybirdMobileApp/src/pages/accounts/accounts/accounts.html"*/,
         }),
         __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* App */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* NavController */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* NavParams */], __WEBPACK_IMPORTED_MODULE_2__providers_mmi_service_mmi_service__["a" /* MmiServiceProvider */], __WEBPACK_IMPORTED_MODULE_3__providers_mmi_notify_mmi_notify__["a" /* MmiNotifyProvider */]])
     ], AccountsPage);
@@ -204,15 +218,15 @@ var AccountsPage = /** @class */ (function () {
 
 /***/ }),
 
-/***/ 347:
+/***/ 346:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return DetailedTabPage; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__transactions_withdraw_withdraw__ = __webpack_require__(348);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__accounts_account_read_account_read__ = __webpack_require__(349);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__transactions_deposit_deposit__ = __webpack_require__(350);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__transactions_withdraw_withdraw__ = __webpack_require__(347);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__accounts_account_read_account_read__ = __webpack_require__(348);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__transactions_deposit_deposit__ = __webpack_require__(349);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -233,7 +247,7 @@ var DetailedTabPage = /** @class */ (function () {
         this.Deposit = __WEBPACK_IMPORTED_MODULE_3__transactions_deposit_deposit__["a" /* DepositPage */];
     }
     DetailedTabPage = __decorate([
-        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["m" /* Component */])({template:/*ion-inline-start:"C:\Users\emmanuel.mulea\Desktop\HybirdMobileApp\src\pages\tabs\detailed-tab\detailed-tab.html"*/'<ion-tabs>\n\n    <ion-tab [root]="Balance" tabTitle="Balance"></ion-tab>\n\n    <ion-tab [root]="Withdraw" tabTitle="Withdraw" ></ion-tab>\n\n    <ion-tab [root]="Deposit" tabTitle="Deposit" ></ion-tab>\n\n</ion-tabs>\n\n  '/*ion-inline-end:"C:\Users\emmanuel.mulea\Desktop\HybirdMobileApp\src\pages\tabs\detailed-tab\detailed-tab.html"*/
+        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["n" /* Component */])({template:/*ion-inline-start:"/home/emmanuel.mulea/Desktop/HybirdMobileApp/src/pages/tabs/detailed-tab/detailed-tab.html"*/'<ion-tabs>\n    <ion-tab [root]="Balance" tabTitle="Balance"></ion-tab>\n    <ion-tab [root]="Withdraw" tabTitle="Withdraw" ></ion-tab>\n    <ion-tab [root]="Deposit" tabTitle="Deposit" ></ion-tab>\n</ion-tabs>\n  '/*ion-inline-end:"/home/emmanuel.mulea/Desktop/HybirdMobileApp/src/pages/tabs/detailed-tab/detailed-tab.html"*/
         }),
         __metadata("design:paramtypes", [])
     ], DetailedTabPage);
@@ -244,16 +258,16 @@ var DetailedTabPage = /** @class */ (function () {
 
 /***/ }),
 
-/***/ 348:
+/***/ 347:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return WithdrawPage; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(29);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__tabs_tabs_tabs__ = __webpack_require__(63);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__providers_mmi_service_mmi_service__ = __webpack_require__(43);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__providers_mmi_notify_mmi_notify__ = __webpack_require__(44);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__tabs_tabs_tabs__ = __webpack_require__(62);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__providers_mmi_service_mmi_service__ = __webpack_require__(42);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__providers_mmi_notify_mmi_notify__ = __webpack_require__(43);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -286,67 +300,88 @@ var WithdrawPage = /** @class */ (function () {
     // using this since the constructor of tabs get called once
     WithdrawPage.prototype.ionViewWillEnter = function () {
         this.accountNum = parseInt(window.sessionStorage.getItem('currectAccount'));
+        this.fullEndpoint = this.mmi_request.clientDomainUrl + 'accounts/' + this.accountNum + '.json?auth=' + window.sessionStorage.getItem('idToken');
         this.getAccounts(this.accountNum);
     };
     WithdrawPage.prototype.getAccounts = function (account) {
+        this.sendGetRequest();
+    };
+    WithdrawPage.prototype.setAccountData = function (data) {
+        this.accountData = data;
+    };
+    WithdrawPage.prototype.sendGetRequest = function () {
         var _this = this;
-        var tempurl = this.mmi_request.clientDomainUrl + 'accounts/' + account + '.json?auth=' + window.sessionStorage.getItem('idToken');
-        this.mmi_request.apiGet(tempurl).subscribe(function (data) {
-            _this.accountData = data;
+        this.mmi_request.apiGet(this.fullEndpoint).subscribe(function (data) {
+            _this.setAccountData(data);
         }, function (error) {
-            _this.notify.alertCtr('Accounts Error', 'Could not fetch accounts');
-            _this.notify.alert.present();
+            _this.notify.presentAlert('Accounts Error', 'Could not get the accounts');
         });
     };
-    WithdrawPage.prototype.withdraw = function (body) {
+    WithdrawPage.prototype.sendPutRequest = function (body) {
         var _this = this;
-        var tempurl = this.mmi_request.clientDomainUrl + 'accounts/' + this.accountNum + '.json?auth=' + window.sessionStorage.getItem('idToken');
-        this.mmi_request.apiPut(body, tempurl).subscribe(function (data) {
+        this.mmi_request.apiPut(body, this.fullEndpoint).subscribe(function (data) {
             _this.amount = null;
-            _this.notify.alertCtr('Withdraw', 'Successful Withdrawn!');
-            _this.notify.alert.present();
+            _this.notify.presentAlert('Withdraw', 'Successful Withdrawn!');
         }, function (error) {
-            console.log(error);
-            _this.notify.alertCtr('Withdraw Error', 'an error has occurred ');
-            _this.notify.alert.present();
+            _this.notify.presentAlert('Withdraw Error', 'an error has occurred ');
         });
     };
-    WithdrawPage.prototype.validate = function (isoverdraft) {
+    WithdrawPage.prototype.calculateBalanceAndSetTotalAmount = function () {
+        var total = Number(this.accountData.balance) - Number(this.amount);
+        this.accountData.balance = total;
+    };
+    WithdrawPage.prototype.calculateOverdraftAndSetTotalAmount = function () {
+        var total = Number(this.accountData.overdraft) - Number(this.amount);
+        this.accountData.overdraft = total;
+    };
+    WithdrawPage.prototype.isAmountValid = function () {
         if (this.amount > 0) {
-            if (isoverdraft) {
-                if ((Number(this.accountData.overdraft) - Number(this.amount)) >= 0) {
-                    var total = Number(this.accountData.overdraft) - Number(this.amount);
-                    this.accountData.overdraft = total;
-                    this.withdraw(this.accountData);
-                }
-                else {
-                    this.notify.alertCtr('Withdraw Overdraft', 'You are entitled to withdraw ' + 'R' + this.accountData.balance);
-                    this.notify.alert.present();
-                }
-            }
-            else {
-                if ((Number(this.accountData.balance) - Number(this.amount)) >= 0) {
-                    var total = Number(this.accountData.balance) - Number(this.amount);
-                    this.accountData.balance = total;
-                    this.withdraw(this.accountData);
-                }
-                else {
-                    this.notify.alertCtr('Withdraw Balance', 'You are entitled to withdraw ' + 'R' + this.accountData.balance);
-                    this.notify.alert.present();
-                }
-            }
+            return true;
         }
         else {
-            this.notify.alertCtr('Withdraw', 'Cannot withdraw  ' + 'R' + this.accountData.balance);
-            this.notify.alert.present();
+            this.notify.presentAlert('Withdraw', 'Cannot withdraw  ' + 'R' + this.accountData.balance);
+            return false;
+        }
+    };
+    WithdrawPage.prototype.areYouEntitledToWithdrawOverdraft = function () {
+        if ((Number(this.accountData.overdraft) - Number(this.amount)) >= 0) {
+            return true;
+        }
+        else {
+            this.notify.presentAlert('Withdraw Overdraft', 'You are entitled to withdraw ' + 'R' + this.accountData.balance);
+            return false;
+        }
+    };
+    WithdrawPage.prototype.areYouEntitledToWithdrawBalance = function () {
+        if ((Number(this.accountData.balance) - Number(this.amount)) >= 0) {
+            return true;
+        }
+        else {
+            this.notify.presentAlert('Withdraw Balance', 'You are entitled to withdraw ' + 'R' + this.accountData.balance);
+            return false;
+        }
+    };
+    WithdrawPage.prototype.withdraw = function (body) {
+        this.sendPutRequest(body);
+    };
+    WithdrawPage.prototype.getCash = function (isoverdraft) {
+        if (this.isAmountValid()) {
+            if (isoverdraft && this.areYouEntitledToWithdrawOverdraft()) {
+                this.calculateOverdraftAndSetTotalAmount();
+                this.withdraw(this.accountData);
+            }
+            else if (this.areYouEntitledToWithdrawBalance()) {
+                this.calculateBalanceAndSetTotalAmount();
+                this.withdraw(this.accountData);
+            }
         }
     };
     WithdrawPage.prototype.GotoMain = function () {
         this.app.getRootNav().push(__WEBPACK_IMPORTED_MODULE_2__tabs_tabs_tabs__["a" /* TabsPage */]);
     };
     WithdrawPage = __decorate([
-        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["m" /* Component */])({
-            selector: 'page-withdraw',template:/*ion-inline-start:"C:\Users\emmanuel.mulea\Desktop\HybirdMobileApp\src\pages\transactions\withdraw\withdraw.html"*/'<!--\n\n  Generated template for the WithdrawPage page.\n\n\n\n  See http://ionicframework.com/docs/components/#navigation for more info on\n\n  Ionic pages and navigation.\n\n-->\n\n<ion-header>\n\n  <ion-navbar>\n\n    <ion-title>Withdraw</ion-title>\n\n    <ion-buttons end>\n\n        <button ion-button button-right (click)="GotoMain()" >\n\n            back\n\n      </button>\n\n      </ion-buttons>\n\n  </ion-navbar>\n\n</ion-header>\n\n\n\n<ion-content padding>\n\n    <ion-card>\n\n      \n\n        <ion-card-content>\n\n            <ion-list>\n\n  \n\n                <ion-item>\n\n                  <ion-label floating>Amount.</ion-label>\n\n                  <ion-input  required [(ngModel)]="amount" type="number"></ion-input>\n\n                </ion-item>\n\n          \n\n                <ion-item>\n\n                    <ion-label>Would you like to use overdraft amount ?</ion-label>\n\n                    <ion-checkbox name="isoverdraft" [(ngModel)]= "isoverdraft" color="dark" checked="false"></ion-checkbox>\n\n                  </ion-item>\n\n              </ion-list>\n\n              <div padding>\n\n                  <button ion-button (click)="validate(isoverdraft)" block>Withdraw</button>\n\n                </div>\n\n        </ion-card-content>\n\n      </ion-card>\n\n</ion-content>\n\n'/*ion-inline-end:"C:\Users\emmanuel.mulea\Desktop\HybirdMobileApp\src\pages\transactions\withdraw\withdraw.html"*/,
+        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["n" /* Component */])({
+            selector: 'page-withdraw',template:/*ion-inline-start:"/home/emmanuel.mulea/Desktop/HybirdMobileApp/src/pages/transactions/withdraw/withdraw.html"*/'<!--\n  Generated template for the WithdrawPage page.\n\n  See http://ionicframework.com/docs/components/#navigation for more info on\n  Ionic pages and navigation.\n-->\n<ion-header>\n  <ion-navbar>\n    <ion-title>Withdraw</ion-title>\n    <ion-buttons end>\n        <button ion-button button-right (click)="GotoMain()" >\n            back\n      </button>\n      </ion-buttons>\n  </ion-navbar>\n</ion-header>\n\n<ion-content padding>\n    <ion-card>\n      \n        <ion-card-content>\n            <ion-list>\n  \n                <ion-item>\n                  <ion-label floating>Amount.</ion-label>\n                  <ion-input  required [(ngModel)]="amount" type="number"></ion-input>\n                </ion-item>\n          \n                <ion-item>\n                    <ion-label>Would you like to use overdraft amount ?</ion-label>\n                    <ion-checkbox name="isoverdraft" [(ngModel)]= "isoverdraft" color="dark" checked="false"></ion-checkbox>\n                  </ion-item>\n              </ion-list>\n              <div padding>\n                  <button ion-button (click)="getCash(isoverdraft)" block>Withdraw</button>\n                </div>\n        </ion-card-content>\n      </ion-card>\n</ion-content>\n'/*ion-inline-end:"/home/emmanuel.mulea/Desktop/HybirdMobileApp/src/pages/transactions/withdraw/withdraw.html"*/,
         }),
         __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* App */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* NavController */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* NavParams */], __WEBPACK_IMPORTED_MODULE_3__providers_mmi_service_mmi_service__["a" /* MmiServiceProvider */], __WEBPACK_IMPORTED_MODULE_4__providers_mmi_notify_mmi_notify__["a" /* MmiNotifyProvider */]])
     ], WithdrawPage);
@@ -357,16 +392,16 @@ var WithdrawPage = /** @class */ (function () {
 
 /***/ }),
 
-/***/ 349:
+/***/ 348:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return AccountReadPage; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(29);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__providers_mmi_service_mmi_service__ = __webpack_require__(43);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__providers_mmi_notify_mmi_notify__ = __webpack_require__(44);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__tabs_tabs_tabs__ = __webpack_require__(63);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__providers_mmi_service_mmi_service__ = __webpack_require__(42);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__providers_mmi_notify_mmi_notify__ = __webpack_require__(43);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__tabs_tabs_tabs__ = __webpack_require__(62);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -399,36 +434,39 @@ var AccountReadPage = /** @class */ (function () {
     // using this since the constructor of tabs get called once
     AccountReadPage.prototype.ionViewWillEnter = function () {
         this.accountNum = parseInt(window.sessionStorage.getItem('currectAccount'));
-        this.getAccountDetail(this.accountNum);
+        this.fullEndpoint = this.mmi_request.clientDomainUrl + 'accounts/' + this.accountNum + '.json?auth=' + window.sessionStorage.getItem('idToken');
+        this.getAccountDetail();
     };
-    AccountReadPage.prototype.getAccountDetail = function (account) {
+    AccountReadPage.prototype.getResponse = function (response) {
+        if (response) {
+            this.accountDetail = response;
+        }
+        else {
+            this.notify.presentAlert('Accounts Error', 'Could not get the details');
+        }
+    };
+    AccountReadPage.prototype.sendRequest = function () {
         var _this = this;
+        this.mmi_request.apiGet(this.fullEndpoint).subscribe(function (response) {
+            _this.getResponse(response);
+        }, function (error) {
+            _this.notify.presentAlert('Accounts Error', 'Could not get the details');
+        });
+    };
+    AccountReadPage.prototype.getAccountDetail = function () {
         try {
-            var tempurl = this.mmi_request.clientDomainUrl + 'accounts/' + account + '.json?auth=' + window.sessionStorage.getItem('idToken');
-            this.mmi_request.apiGet(tempurl).subscribe(function (response) {
-                if (response) {
-                    _this.accountDetail = response;
-                }
-                else {
-                    _this.notify.alertCtr('Accounts Error', 'Could not get the details');
-                    _this.notify.alert.present();
-                }
-            }, function (error) {
-                _this.notify.alertCtr('Accounts Error', 'Could not get the details');
-                _this.notify.alert.present();
-            });
+            this.sendRequest();
         }
         catch (error) {
-            this.notify.alertCtr('Accounts Error', error);
-            this.notify.alert.present();
+            this.notify.presentAlert('Accounts Error', error);
         }
     };
     AccountReadPage.prototype.GotoMain = function () {
         this.app.getRootNav().push(__WEBPACK_IMPORTED_MODULE_4__tabs_tabs_tabs__["a" /* TabsPage */]);
     };
     AccountReadPage = __decorate([
-        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["m" /* Component */])({
-            selector: 'page-account-read',template:/*ion-inline-start:"C:\Users\emmanuel.mulea\Desktop\HybirdMobileApp\src\pages\accounts\account-read\account-read.html"*/'<!--\n\n  Generated template for the AccountReadPage page.\n\n\n\n  See http://ionicframework.com/docs/components/#navigation for more info on\n\n  Ionic pages and navigation.\n\n-->\n\n<ion-header>\n\n  <ion-navbar>\n\n    <ion-title>Account</ion-title>\n\n    <ion-buttons end>\n\n        <button ion-button button-right (click)="GotoMain()" >\n\n            back\n\n      </button>\n\n      </ion-buttons>\n\n  </ion-navbar>\n\n</ion-header>\n\n\n\n<ion-content padding>\n\n  <ion-card>\n\n    <ion-card-header>\n\n      Account No: {{accountNum}}\n\n    </ion-card-header>\n\n    <ion-card-content>\n\n      <ion-grid>\n\n        <ion-row>\n\n          <ion-col col-4>Balance :</ion-col>\n\n          <ion-col col-8>{{accountDetail?.balance}}</ion-col>\n\n        </ion-row>\n\n        <ion-row>\n\n          <ion-col col-4>Overdraft :</ion-col>\n\n          <ion-col col-6>{{accountDetail?.overdraft}}</ion-col>\n\n        </ion-row>\n\n      </ion-grid>\n\n    </ion-card-content>\n\n  </ion-card>\n\n</ion-content>\n\n'/*ion-inline-end:"C:\Users\emmanuel.mulea\Desktop\HybirdMobileApp\src\pages\accounts\account-read\account-read.html"*/,
+        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["n" /* Component */])({
+            selector: 'page-account-read',template:/*ion-inline-start:"/home/emmanuel.mulea/Desktop/HybirdMobileApp/src/pages/accounts/account-read/account-read.html"*/'<!--\n  Generated template for the AccountReadPage page.\n\n  See http://ionicframework.com/docs/components/#navigation for more info on\n  Ionic pages and navigation.\n-->\n<ion-header>\n  <ion-navbar>\n    <ion-title>Account</ion-title>\n    <ion-buttons end>\n        <button ion-button button-right (click)="GotoMain()" >\n            back\n      </button>\n      </ion-buttons>\n  </ion-navbar>\n</ion-header>\n\n<ion-content padding>\n  <ion-card>\n    <ion-card-header>\n      Account No: {{accountNum}}\n    </ion-card-header>\n    <ion-card-content>\n      <ion-grid>\n        <ion-row>\n          <ion-col col-4>Balance :</ion-col>\n          <ion-col col-8>{{accountDetail?.balance}}</ion-col>\n        </ion-row>\n        <ion-row>\n          <ion-col col-4>Overdraft :</ion-col>\n          <ion-col col-6>{{accountDetail?.overdraft}}</ion-col>\n        </ion-row>\n      </ion-grid>\n    </ion-card-content>\n  </ion-card>\n</ion-content>\n'/*ion-inline-end:"/home/emmanuel.mulea/Desktop/HybirdMobileApp/src/pages/accounts/account-read/account-read.html"*/,
         }),
         __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* App */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* NavController */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* NavParams */], __WEBPACK_IMPORTED_MODULE_2__providers_mmi_service_mmi_service__["a" /* MmiServiceProvider */], __WEBPACK_IMPORTED_MODULE_3__providers_mmi_notify_mmi_notify__["a" /* MmiNotifyProvider */]])
     ], AccountReadPage);
@@ -439,16 +477,16 @@ var AccountReadPage = /** @class */ (function () {
 
 /***/ }),
 
-/***/ 350:
+/***/ 349:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return DepositPage; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(29);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__tabs_tabs_tabs__ = __webpack_require__(63);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__providers_mmi_service_mmi_service__ = __webpack_require__(43);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__providers_mmi_notify_mmi_notify__ = __webpack_require__(44);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__tabs_tabs_tabs__ = __webpack_require__(62);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__providers_mmi_service_mmi_service__ = __webpack_require__(42);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__providers_mmi_notify_mmi_notify__ = __webpack_require__(43);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -481,45 +519,67 @@ var DepositPage = /** @class */ (function () {
     // using this since the constructor of tabs get called once
     DepositPage.prototype.ionViewWillEnter = function () {
         this.accountNum = parseInt(window.sessionStorage.getItem('currectAccount'));
-        this.getAccounts(this.accountNum);
+        this.fullEndpoint = this.mmi_request.clientDomainUrl + 'accounts/' + this.accountNum + '.json?auth=' + window.sessionStorage.getItem('idToken');
+        this.getAccounts();
     };
-    DepositPage.prototype.getAccounts = function (account) {
+    DepositPage.prototype.setAccountData = function (data) {
+        this.accountData = data;
+    };
+    DepositPage.prototype.sendGetRequest = function () {
         var _this = this;
+        this.mmi_request.apiGet(this.fullEndpoint).subscribe(function (data) {
+            _this.setAccountData(data);
+        }, function (error) {
+            _this.notify.presentAlert('Accounts Error', 'Could not get the accounts');
+        });
+    };
+    DepositPage.prototype.sendPutRequest = function (body) {
+        var _this = this;
+        this.mmi_request.apiPut(body, this.fullEndpoint).subscribe(function (data) {
+            _this.amount = null;
+            _this.notify.presentAlert('Deposit', 'Successful Saved!');
+        }, function (error) {
+            _this.notify.presentAlert('Deposit', 'Error occured!');
+        });
+    };
+    DepositPage.prototype.isAmountValid = function () {
+        if (this.amount > 0) {
+            return true;
+        }
+        else {
+            this.notify.presentAlert('Deposit', 'Invalid Amount');
+            return false;
+        }
+    };
+    DepositPage.prototype.calculateAndSetTotalAmount = function () {
+        var total = Number(this.amount) + Number(this.accountData.balance);
+        this.accountData.balance = total;
+    };
+    DepositPage.prototype.getAccounts = function () {
         try {
-            var tempurl = this.mmi_request.clientDomainUrl + 'accounts/' + account + '.json?auth=' + window.sessionStorage.getItem('idToken');
-            this.mmi_request.apiGet(tempurl).subscribe(function (data) {
-                _this.accountData = data;
-            }, function (error) {
-                console.log(error);
-            });
+            this.sendGetRequest();
         }
         catch (error) {
+            this.notify.presentAlert('Accounts Error', error);
         }
     };
     DepositPage.prototype.GotoMain = function () {
         this.app.getRootNav().push(__WEBPACK_IMPORTED_MODULE_2__tabs_tabs_tabs__["a" /* TabsPage */]);
     };
     DepositPage.prototype.deposit = function () {
-        var _this = this;
-        if (this.amount > 0) {
-            var total = Number(this.amount) + Number(this.accountData.balance);
-            this.accountData.balance = total;
-            var tempurl = this.mmi_request.clientDomainUrl + 'accounts/' + this.accountNum + '.json?auth=' + window.sessionStorage.getItem('idToken');
-            this.mmi_request.apiPut(this.accountData, tempurl).subscribe(function (data) {
-                _this.amount = null;
-                _this.notify.alertCtr('Deposit', 'Successful Saved!');
-                _this.notify.alert.present();
-            }, function (error) {
-                _this.notify.alertCtr('Deposit', 'Error occured!');
-                _this.notify.alert.present();
-            });
+        try {
+            if (this.isAmountValid()) {
+                this.calculateAndSetTotalAmount();
+                this.sendPutRequest(this.accountData);
+            }
         }
-        else {
+        catch (error) {
+            this.notify.presentAlert('Accounts Error', error);
         }
     };
     DepositPage = __decorate([
-        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["m" /* Component */])({
-            selector: 'page-deposit',template:/*ion-inline-start:"C:\Users\emmanuel.mulea\Desktop\HybirdMobileApp\src\pages\transactions\deposit\deposit.html"*/'<!--\n\n  Generated template for the DepositPage page.\n\n\n\n  See http://ionicframework.com/docs/components/#navigation for more info on\n\n  Ionic pages and navigation.\n\n-->\n\n<ion-header>\n\n  <ion-navbar>\n\n    <ion-title>Deposit</ion-title>\n\n    <ion-buttons end>\n\n        <button ion-button button-right (click)="GotoMain()">\n\n            back\n\n      </button>\n\n      </ion-buttons>\n\n  </ion-navbar>\n\n</ion-header>\n\n\n\n<ion-content padding>\n\n    <ion-card>\n\n      \n\n        <ion-card-content>\n\n            <ion-list>\n\n  \n\n                <ion-item>\n\n                  <ion-label floating>Amount.</ion-label>\n\n                  <ion-input required [(ngModel)]="amount" type="number"></ion-input>\n\n                </ion-item>\n\n          \n\n              \n\n              </ion-list>\n\n              <div padding>\n\n                  <button ion-button (click)="deposit()" block>Save</button>\n\n                </div>\n\n        </ion-card-content>\n\n      </ion-card>\n\n</ion-content>\n\n'/*ion-inline-end:"C:\Users\emmanuel.mulea\Desktop\HybirdMobileApp\src\pages\transactions\deposit\deposit.html"*/,
+        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["n" /* Component */])({
+            selector: 'page-deposit',template:/*ion-inline-start:"/home/emmanuel.mulea/Desktop/HybirdMobileApp/src/pages/transactions/deposit/deposit.html"*/'<!--\n  Generated template for the DepositPage page.\n\n  See http://ionicframework.com/docs/components/#navigation for more info on\n  Ionic pages and navigation.\n-->\n<ion-header>\n  <ion-navbar>\n    <ion-title>Deposit</ion-title>\n    <ion-buttons end>\n        <button ion-button button-right (click)="GotoMain()">\n            back\n      </button>\n      </ion-buttons>\n  </ion-navbar>\n</ion-header>\n\n<ion-content padding>\n    <ion-card>\n      \n        <ion-card-content>\n            <ion-list>\n  \n                <ion-item>\n                  <ion-label floating>Amount.</ion-label>\n                  <ion-input required [(ngModel)]="amount" type="number"></ion-input>\n                </ion-item>\n          \n              \n              </ion-list>\n              <div padding>\n                  <button ion-button (click)="deposit()" block>Save</button>\n                </div>\n        </ion-card-content>\n      </ion-card>\n</ion-content>\n'/*ion-inline-end:"/home/emmanuel.mulea/Desktop/HybirdMobileApp/src/pages/transactions/deposit/deposit.html"*/,
         }),
         __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* App */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* NavController */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* NavParams */], __WEBPACK_IMPORTED_MODULE_3__providers_mmi_service_mmi_service__["a" /* MmiServiceProvider */], __WEBPACK_IMPORTED_MODULE_4__providers_mmi_notify_mmi_notify__["a" /* MmiNotifyProvider */]])
     ], DepositPage);
@@ -530,15 +590,15 @@ var DepositPage = /** @class */ (function () {
 
 /***/ }),
 
-/***/ 351:
+/***/ 350:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return AccountCreatePage; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(29);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__providers_mmi_service_mmi_service__ = __webpack_require__(43);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__providers_mmi_notify_mmi_notify__ = __webpack_require__(44);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__providers_mmi_service_mmi_service__ = __webpack_require__(42);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__providers_mmi_notify_mmi_notify__ = __webpack_require__(43);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -571,40 +631,50 @@ var AccountCreatePage = /** @class */ (function () {
     // using this since the constructor of tabs get called once
     AccountCreatePage.prototype.ionViewWillEnter = function () {
         this.accountNum = Math.floor(1000000 + Math.random() * 900000);
+        this.fullEndpoint = this.mmi_request.clientDomainUrl + 'clients/' + window.sessionStorage.getItem('localId') + '.json?auth=' + window.sessionStorage.getItem('idToken');
         this.getClientData();
     };
-    AccountCreatePage.prototype.saveNewAcc = function () {
-        var _this = this;
+    AccountCreatePage.prototype.isvalidateAccount = function () {
         if (this.accountNum > 0) {
-            this.clientData.accounts.push(parseFloat(this.accountNum));
-            var tempurl = this.mmi_request.clientDomainUrl + 'clients/' + window.sessionStorage.getItem('localId') + '.json?auth=' + window.sessionStorage.getItem('idToken');
-            this.mmi_request.apiPut(this.clientData, tempurl).subscribe(function (data) {
-                _this.accountNum = null;
-                _this.notify.alertCtr('Account', 'Successful Saved!');
-                _this.notify.alert.present();
-            }, function (error) {
-                _this.notify.alertCtr('Accounts Error', 'Could not save');
-                _this.notify.alert.present();
-            });
+            return true;
         }
         else {
-            this.notify.alertCtr('Accounts ', 'Cannot be negative number or empty');
-            this.notify.alert.present();
+            this.notify.presentAlert('Accounts ', 'Cannot be negative number or empty');
+            return false;
+        }
+    };
+    AccountCreatePage.prototype.pushAccountTolist = function () {
+        this.clientData.accounts.push(parseFloat(this.accountNum));
+    };
+    AccountCreatePage.prototype.getClientDataASBody = function () {
+        return this.clientData;
+    };
+    AccountCreatePage.prototype.sendRequest = function (body) {
+        var _this = this;
+        this.mmi_request.apiPut(body, this.fullEndpoint).subscribe(function (data) {
+            _this.accountNum = null;
+            _this.notify.presentAlert('Account', 'Successful Saved!');
+        }, function (error) {
+            _this.notify.presentAlert('Accounts Error', 'Could not save');
+        });
+    };
+    AccountCreatePage.prototype.saveNewAcc = function () {
+        if (this.isvalidateAccount()) {
+            this.pushAccountTolist();
+            this.sendRequest(this.getClientDataASBody());
         }
     };
     AccountCreatePage.prototype.getClientData = function () {
         var _this = this;
-        var tempurl = this.mmi_request.clientDomainUrl + 'clients/' + window.sessionStorage.getItem('localId') + '.json?auth=' + window.sessionStorage.getItem('idToken');
-        this.mmi_request.apiGet(tempurl).subscribe(function (data) {
+        this.mmi_request.apiGet(this.fullEndpoint).subscribe(function (data) {
             _this.clientData = data;
         }, function (error) {
-            _this.notify.alertCtr('Accounts Error', 'Could not fetch accounts');
-            _this.notify.alert.present();
+            _this.notify.presentAlert('Accounts Error', 'Could not fetch accounts');
         });
     };
     AccountCreatePage = __decorate([
-        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["m" /* Component */])({
-            selector: 'page-account-create',template:/*ion-inline-start:"C:\Users\emmanuel.mulea\Desktop\HybirdMobileApp\src\pages\accounts\account-create\account-create.html"*/'<!--\n\n  Generated template for the AccountCreatePage page.\n\n\n\n  See http://ionicframework.com/docs/components/#navigation for more info on\n\n  Ionic pages and navigation.\n\n-->\n\n<ion-header>\n\n  <ion-navbar>\n\n    <ion-title>New Account </ion-title>\n\n  </ion-navbar>\n\n</ion-header>\n\n\n\n<ion-content padding>\n\n  <ion-content padding>\n\n\n\n    <ion-card>\n\n      \n\n        <ion-card-content>\n\n            <ion-list>\n\n  \n\n                <ion-item>\n\n                  <ion-label floating>Account No.</ion-label>\n\n                  <ion-input   [(ngModel)]="accountNum" type="number"></ion-input>\n\n                </ion-item>\n\n          \n\n              \n\n              </ion-list>\n\n              <div padding>\n\n                  <button ion-button (click)="saveNewAcc()" block>Save</button>\n\n                </div>\n\n        </ion-card-content>\n\n      </ion-card>\n\n    \n\n</ion-content>\n\n'/*ion-inline-end:"C:\Users\emmanuel.mulea\Desktop\HybirdMobileApp\src\pages\accounts\account-create\account-create.html"*/,
+        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["n" /* Component */])({
+            selector: 'page-account-create',template:/*ion-inline-start:"/home/emmanuel.mulea/Desktop/HybirdMobileApp/src/pages/accounts/account-create/account-create.html"*/'<!--\n  Generated template for the AccountCreatePage page.\n\n  See http://ionicframework.com/docs/components/#navigation for more info on\n  Ionic pages and navigation.\n-->\n<ion-header>\n  <ion-navbar>\n    <ion-title>New Account </ion-title>\n  </ion-navbar>\n</ion-header>\n\n<ion-content padding>\n  <ion-content padding>\n\n    <ion-card>\n      \n        <ion-card-content>\n            <ion-list>\n  \n                <ion-item>\n                  <ion-label floating>Account No.</ion-label>\n                  <ion-input   [(ngModel)]="accountNum" type="number"></ion-input>\n                </ion-item>\n          \n              \n              </ion-list>\n              <div padding>\n                  <button ion-button (click)="saveNewAcc()" block>Save</button>\n                </div>\n        </ion-card-content>\n      </ion-card>\n    \n</ion-content>\n'/*ion-inline-end:"/home/emmanuel.mulea/Desktop/HybirdMobileApp/src/pages/accounts/account-create/account-create.html"*/,
         }),
         __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* NavController */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* NavParams */], __WEBPACK_IMPORTED_MODULE_2__providers_mmi_service_mmi_service__["a" /* MmiServiceProvider */], __WEBPACK_IMPORTED_MODULE_3__providers_mmi_notify_mmi_notify__["a" /* MmiNotifyProvider */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */]])
     ], AccountCreatePage);
@@ -615,13 +685,13 @@ var AccountCreatePage = /** @class */ (function () {
 
 /***/ }),
 
-/***/ 352:
+/***/ 351:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_platform_browser_dynamic__ = __webpack_require__(353);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__app_module__ = __webpack_require__(357);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_platform_browser_dynamic__ = __webpack_require__(352);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__app_module__ = __webpack_require__(356);
 
 
 Object(__WEBPACK_IMPORTED_MODULE_0__angular_platform_browser_dynamic__["a" /* platformBrowserDynamic */])().bootstrapModule(__WEBPACK_IMPORTED_MODULE_1__app_module__["a" /* AppModule */]);
@@ -629,28 +699,28 @@ Object(__WEBPACK_IMPORTED_MODULE_0__angular_platform_browser_dynamic__["a" /* pl
 
 /***/ }),
 
-/***/ 357:
+/***/ 356:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return AppModule; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_platform_browser__ = __webpack_require__(40);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_platform_browser__ = __webpack_require__(39);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_angular__ = __webpack_require__(29);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_http__ = __webpack_require__(136);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__app_component__ = __webpack_require__(394);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__pages_tabs_tabs_tabs__ = __webpack_require__(63);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__ionic_native_status_bar__ = __webpack_require__(246);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__ionic_native_splash_screen__ = __webpack_require__(251);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__pages_login_login__ = __webpack_require__(252);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__providers_mmi_service_mmi_service__ = __webpack_require__(43);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__providers_mmi_notify_mmi_notify__ = __webpack_require__(44);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__pages_accounts_accounts_accounts__ = __webpack_require__(346);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__pages_accounts_account_read_account_read__ = __webpack_require__(349);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__pages_accounts_account_create_account_create__ = __webpack_require__(351);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__pages_transactions_withdraw_withdraw__ = __webpack_require__(348);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__pages_transactions_deposit_deposit__ = __webpack_require__(350);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__pages_tabs_detailed_tab_detailed_tab__ = __webpack_require__(347);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_http__ = __webpack_require__(135);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__app_component__ = __webpack_require__(393);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__pages_tabs_tabs_tabs__ = __webpack_require__(62);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__ionic_native_status_bar__ = __webpack_require__(245);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__ionic_native_splash_screen__ = __webpack_require__(250);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__pages_login_login__ = __webpack_require__(251);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__providers_mmi_service_mmi_service__ = __webpack_require__(42);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__providers_mmi_notify_mmi_notify__ = __webpack_require__(43);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__pages_accounts_accounts_accounts__ = __webpack_require__(345);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__pages_accounts_account_read_account_read__ = __webpack_require__(348);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__pages_accounts_account_create_account_create__ = __webpack_require__(350);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__pages_transactions_withdraw_withdraw__ = __webpack_require__(347);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__pages_transactions_deposit_deposit__ = __webpack_require__(349);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__pages_tabs_detailed_tab_detailed_tab__ = __webpack_require__(346);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -678,7 +748,7 @@ var AppModule = /** @class */ (function () {
     function AppModule() {
     }
     AppModule = __decorate([
-        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* NgModule */])({
+        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["L" /* NgModule */])({
             declarations: [
                 __WEBPACK_IMPORTED_MODULE_4__app_component__["a" /* MyApp */],
                 __WEBPACK_IMPORTED_MODULE_5__pages_tabs_tabs_tabs__["a" /* TabsPage */],
@@ -693,9 +763,7 @@ var AppModule = /** @class */ (function () {
             imports: [
                 __WEBPACK_IMPORTED_MODULE_1__angular_platform_browser__["a" /* BrowserModule */],
                 __WEBPACK_IMPORTED_MODULE_3__angular_http__["c" /* HttpModule */],
-                __WEBPACK_IMPORTED_MODULE_2_ionic_angular__["e" /* IonicModule */].forRoot(__WEBPACK_IMPORTED_MODULE_4__app_component__["a" /* MyApp */], {}, {
-                    links: []
-                })
+                __WEBPACK_IMPORTED_MODULE_2_ionic_angular__["e" /* IonicModule */].forRoot(__WEBPACK_IMPORTED_MODULE_4__app_component__["a" /* MyApp */])
             ],
             bootstrap: [__WEBPACK_IMPORTED_MODULE_2_ionic_angular__["c" /* IonicApp */]],
             entryComponents: [
@@ -712,7 +780,7 @@ var AppModule = /** @class */ (function () {
             providers: [
                 __WEBPACK_IMPORTED_MODULE_6__ionic_native_status_bar__["a" /* StatusBar */],
                 __WEBPACK_IMPORTED_MODULE_7__ionic_native_splash_screen__["a" /* SplashScreen */],
-                { provide: __WEBPACK_IMPORTED_MODULE_0__angular_core__["u" /* ErrorHandler */], useClass: __WEBPACK_IMPORTED_MODULE_2_ionic_angular__["d" /* IonicErrorHandler */] },
+                { provide: __WEBPACK_IMPORTED_MODULE_0__angular_core__["v" /* ErrorHandler */], useClass: __WEBPACK_IMPORTED_MODULE_2_ionic_angular__["d" /* IonicErrorHandler */] },
                 __WEBPACK_IMPORTED_MODULE_9__providers_mmi_service_mmi_service__["a" /* MmiServiceProvider */],
                 __WEBPACK_IMPORTED_MODULE_10__providers_mmi_notify_mmi_notify__["a" /* MmiNotifyProvider */]
             ]
@@ -725,16 +793,16 @@ var AppModule = /** @class */ (function () {
 
 /***/ }),
 
-/***/ 394:
+/***/ 393:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return MyApp; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(29);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ionic_native_status_bar__ = __webpack_require__(246);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__ionic_native_splash_screen__ = __webpack_require__(251);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__pages_login_login__ = __webpack_require__(252);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ionic_native_status_bar__ = __webpack_require__(245);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__ionic_native_splash_screen__ = __webpack_require__(250);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__pages_login_login__ = __webpack_require__(251);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -760,7 +828,7 @@ var MyApp = /** @class */ (function () {
         });
     }
     MyApp = __decorate([
-        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["m" /* Component */])({template:/*ion-inline-start:"C:\Users\emmanuel.mulea\Desktop\HybirdMobileApp\src\app\app.html"*/'<ion-nav [root]="rootPage"></ion-nav>\n\n'/*ion-inline-end:"C:\Users\emmanuel.mulea\Desktop\HybirdMobileApp\src\app\app.html"*/
+        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["n" /* Component */])({template:/*ion-inline-start:"/home/emmanuel.mulea/Desktop/HybirdMobileApp/src/app/app.html"*/'<ion-nav [root]="rootPage"></ion-nav>\n'/*ion-inline-end:"/home/emmanuel.mulea/Desktop/HybirdMobileApp/src/app/app.html"*/
         }),
         __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["i" /* Platform */], __WEBPACK_IMPORTED_MODULE_2__ionic_native_status_bar__["a" /* StatusBar */], __WEBPACK_IMPORTED_MODULE_3__ionic_native_splash_screen__["a" /* SplashScreen */]])
     ], MyApp);
@@ -771,18 +839,18 @@ var MyApp = /** @class */ (function () {
 
 /***/ }),
 
-/***/ 43:
+/***/ 42:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return MmiServiceProvider; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_http__ = __webpack_require__(136);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_http__ = __webpack_require__(135);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs__ = __webpack_require__(400);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_rxjs__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs_add_operator_map__ = __webpack_require__(291);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs_add_operator_map__ = __webpack_require__(290);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs_add_operator_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_rxjs_add_operator_map__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_rxjs_add_operator_catch__ = __webpack_require__(264);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_rxjs_add_operator_catch__ = __webpack_require__(263);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_rxjs_add_operator_catch___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_rxjs_add_operator_catch__);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -837,7 +905,7 @@ var MmiServiceProvider = /** @class */ (function () {
         return __WEBPACK_IMPORTED_MODULE_2_rxjs__["Observable"].throw(error.message || error);
     };
     MmiServiceProvider = __decorate([
-        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */])(),
+        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["B" /* Injectable */])(),
         __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1__angular_http__["b" /* Http */]])
     ], MmiServiceProvider);
     return MmiServiceProvider;
@@ -847,7 +915,7 @@ var MmiServiceProvider = /** @class */ (function () {
 
 /***/ }),
 
-/***/ 44:
+/***/ 43:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -894,8 +962,23 @@ var MmiNotifyProvider = /** @class */ (function () {
                 }]
         });
     };
+    MmiNotifyProvider.prototype.presentLoading = function (msg) {
+        this.loaderCtr(msg);
+        this.loader.present();
+    };
+    MmiNotifyProvider.prototype.dismissLoading = function () {
+        this.loader.dismiss();
+    };
+    MmiNotifyProvider.prototype.presentToast = function (msg) {
+        this.toastCtr(msg);
+        this.toast.present();
+    };
+    MmiNotifyProvider.prototype.presentAlert = function (title, msg) {
+        this.alertCtr(title, msg);
+        this.alert.present();
+    };
     MmiNotifyProvider = __decorate([
-        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["A" /* Injectable */])(),
+        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["B" /* Injectable */])(),
         __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["f" /* LoadingController */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["j" /* ToastController */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */]])
     ], MmiNotifyProvider);
     return MmiNotifyProvider;
@@ -905,14 +988,14 @@ var MmiNotifyProvider = /** @class */ (function () {
 
 /***/ }),
 
-/***/ 63:
+/***/ 62:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return TabsPage; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__accounts_accounts_accounts__ = __webpack_require__(346);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__accounts_account_create_account_create__ = __webpack_require__(351);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__accounts_accounts_accounts__ = __webpack_require__(345);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__accounts_account_create_account_create__ = __webpack_require__(350);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -931,7 +1014,7 @@ var TabsPage = /** @class */ (function () {
         this.tab2Root = __WEBPACK_IMPORTED_MODULE_2__accounts_account_create_account_create__["a" /* AccountCreatePage */];
     }
     TabsPage = __decorate([
-        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["m" /* Component */])({template:/*ion-inline-start:"C:\Users\emmanuel.mulea\Desktop\HybirdMobileApp\src\pages\tabs\tabs\tabs.html"*/'<ion-tabs>\n\n  <ion-tab [root]="tab1Root" tabTitle="Accounts" tabIcon="card"></ion-tab>\n\n  <ion-tab [root]="tab2Root" tabTitle="New Account" tabIcon="create"></ion-tab>\n\n  \n\n</ion-tabs>\n\n'/*ion-inline-end:"C:\Users\emmanuel.mulea\Desktop\HybirdMobileApp\src\pages\tabs\tabs\tabs.html"*/
+        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["n" /* Component */])({template:/*ion-inline-start:"/home/emmanuel.mulea/Desktop/HybirdMobileApp/src/pages/tabs/tabs/tabs.html"*/'<ion-tabs>\n  <ion-tab [root]="tab1Root" tabTitle="Accounts" tabIcon="card"></ion-tab>\n  <ion-tab [root]="tab2Root" tabTitle="New Account" tabIcon="create"></ion-tab>\n  \n</ion-tabs>\n'/*ion-inline-end:"/home/emmanuel.mulea/Desktop/HybirdMobileApp/src/pages/tabs/tabs/tabs.html"*/
         }),
         __metadata("design:paramtypes", [])
     ], TabsPage);
@@ -942,5 +1025,5 @@ var TabsPage = /** @class */ (function () {
 
 /***/ })
 
-},[352]);
+},[351]);
 //# sourceMappingURL=main.js.map

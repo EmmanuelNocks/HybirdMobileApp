@@ -27,55 +27,76 @@ export class LoginPage {
   }
 
 
-  login(){
+  private handleAuthenticationError(error): void {
+    this.notify.dismissLoading();
+    let msg = error.status != 0 ? JSON.parse(error._body).error.message : 'Connection problem';
+    this.notify.presentToast(msg)
 
-      try {
+  }
+
+  private setUserSession(token, localId): void {
+   
+      window.sessionStorage.setItem('idToken', token);
+      window.sessionStorage.setItem('localId', localId);
+  
+  }
+
+  private getResponse(response):void{
+
+      if(response){
+                                
+        this.setUserSession(response.idToken,response.localId);
+        this.notify.dismissLoading();
+        this.navCtrl.setRoot(TabsPage);
+
+      }
+      else{
+
+        this.notify.dismissLoading();                 
+        this.notify.presentToast("Error while trying to login");
+      }
+  }
+
+  private sendRequest(body):void{
+
+    this.notify.presentLoading('Authenticating...');
+
+    this.mmi_request.apiPost(body,this.mmi_request.authUrl).subscribe((response) => {
+      
+      this.getResponse(response)
+    },
+      (error)=>{
+
+        this.handleAuthenticationError(error);
+        
+      });
+
+
+  }
+
+  private validateInputUser():void{
+
+        try {
 
               if(this.data.email && this.data.password){
 
-                  this.notify.loaderCtr("Authenticating...");
-                  this.notify.loader.present();
+                this.sendRequest(this.data);
 
-                  this.mmi_request.apiPost(this.data,this.mmi_request.authUrl).subscribe((response) => {
-                     
-                          
-                            if(response){
-                              
-                                  window.sessionStorage.setItem('idToken',response.idToken);
-                                  window.sessionStorage.setItem('localId',response.localId);
+              }
+              else{
 
-                                  this.notify.loader.dismiss();
-                                  this.navCtrl.setRoot(TabsPage);
-                          
-                            }
-                            else{
+                this.notify.presentToast("All fields are required");
+              }
+      }   
+      catch (error) {
 
-                                  this.notify.loader.dismiss();
-                                  this.notify.toastCtr("Error while trying to login");
-                                  this.notify.toast.present();
-                            }
-                          
-                        
-                    },
-                    (error)=>{
+        
+      }
+  }
 
-                              this.notify.loader.dismiss();
-                              let msg = error.status !=0? JSON.parse(error._body).error.message:'Connection problem';
-                              this.notify.toastCtr(msg);
-                              this.notify.toast.present();
-                      
-                    });
+  public login():void{
 
-                }
-                else{
-
-                  this.notify.toastCtr("All fields are required");
-                  this.notify.toast.present();
-                }
-          }   
-          catch (error) {
-  
-            
-          }
+      this.validateInputUser();
   }
 }
+

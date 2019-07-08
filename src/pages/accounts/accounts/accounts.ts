@@ -18,48 +18,54 @@ import { DetailedTabPage } from '../../tabs/detailed-tab/detailed-tab';
 export class AccountsPage {
 
   clientData:any={accounts:[],age:0,name:''};
+  fullEndpoint:string;
   constructor( private app:App ,public navCtrl: NavController, public navParams: NavParams, public mmi_request:MmiServiceProvider,public notify: MmiNotifyProvider) {
  
   }
 
   // using this since the constructor of tabs get called once
   ionViewWillEnter(){
+    this.fullEndpoint = this.mmi_request.clientDomainUrl+'clients/'+window.sessionStorage.getItem('localId')+'.json?auth='+window.sessionStorage.getItem('idToken');
     this.getClientData();
   }
 
-  public getClientData(){
+private getResponse(response):void{
+
+    if(response){
+
+      this.clientData = response;
+    }
+    else{
+
+
+      this.notify.presentAlert('Accounts Error','Could not get the accounts');   
+    }
+}
+private sendRequest():void{
+
+     
+  this.mmi_request.apiGet(this.fullEndpoint).subscribe((response) => {
+                  
+    this.getResponse(response);
+
+  },
+  (error)=>{
+
+    this.notify.presentAlert('Accounts Error','Could not get the accounts');           
+
+  });
+
+}
+public getClientData(){
 
     try{
-      
-          let tempurl = this.mmi_request.clientDomainUrl+'clients/'+window.sessionStorage.getItem('localId')+'.json?auth='+window.sessionStorage.getItem('idToken');
-          this.mmi_request.apiGet(tempurl).subscribe((response) => {
-                  
-            if(response){
+ 
+        this.sendRequest();
+      }
+    catch(error){
 
-              this.clientData = response;
-            }
-            else{
-
-              this.notify.alertCtr('Accounts Error','Could not get the accounts');
-              this.notify.alert.present();  
-            }
-
-
-
-          },
-          (error)=>{
-
-            
-              this.notify.alertCtr('Accounts Error','Could not get the accounts');
-              this.notify.alert.present();            
-
-          });
-        }
-        catch(error){
-
-          this.notify.alertCtr('Accounts Error',error);
-          this.notify.alert.present();  
-        }
+        this.notify.presentAlert('Accounts Error',error);   
+    }
 
 
   }

@@ -18,7 +18,7 @@ export class AccountReadPage {
 
   accountNum:number;
   accountDetail:any={balance: 0,overdraft: 0};
-
+  fullEndpoint:string;
   constructor( private app:App ,public navCtrl: NavController, public navParams: NavParams, public mmi_request:MmiServiceProvider,public notify: MmiNotifyProvider) {
    
 
@@ -27,41 +27,51 @@ export class AccountReadPage {
 
   // using this since the constructor of tabs get called once
   ionViewWillEnter(){
+
     this.accountNum = parseInt(window.sessionStorage.getItem('currectAccount'));
-    this.getAccountDetail(this.accountNum);
+    this.fullEndpoint = this.mmi_request.clientDomainUrl+'accounts/'+this.accountNum+'.json?auth='+window.sessionStorage.getItem('idToken');
+    this.getAccountDetail();
   }
 
-  public getAccountDetail(account){
+  private getResponse(response):void{
+
+      if(response){
+
+        this.accountDetail = response;
+    }
+    else{
+        
+    
+        this.notify.presentAlert('Accounts Error','Could not get the details');
+    }
+  }
+
+  private sendRequest():void{
+
+      this.mmi_request.apiGet(this.fullEndpoint).subscribe((response) => {
+
+          this.getResponse(response);
+
+      },
+      (error)=>{
+
+          this.notify.presentAlert('Accounts Error','Could not get the details');        
+
+      });
+
+  }
+  public getAccountDetail(){
 
   
       try {
 
-                let tempurl = this.mmi_request.clientDomainUrl+'accounts/'+account+'.json?auth='+window.sessionStorage.getItem('idToken');
-                this.mmi_request.apiGet(tempurl).subscribe((response) => {
-
-                    if(response){
-
-                        this.accountDetail = response;
-                    }
-                    else{
-                        
-                        this.notify.alertCtr('Accounts Error','Could not get the details');
-                        this.notify.alert.present(); 
-                    }
-
-                },
-                (error)=>{
-
-                    this.notify.alertCtr('Accounts Error','Could not get the details');
-                    this.notify.alert.present();              
-
-                });
+        this.sendRequest();
         
       } 
       catch (error) {
         
-              this.notify.alertCtr('Accounts Error',error);
-              this.notify.alert.present(); 
+        this.notify.presentAlert('Accounts Error',error);   
+              
       }
 
 

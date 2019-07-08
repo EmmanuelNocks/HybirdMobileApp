@@ -19,101 +19,147 @@ export class WithdrawPage {
   amount:number;
   accountNum:number;
   accountData:any={balance: 0,overdraft: 0};
+  fullEndpoint:string;
   constructor( private app:App ,public navCtrl: NavController, public navParams: NavParams,public mmi_request:MmiServiceProvider,public notify: MmiNotifyProvider) {
   }
 
  // using this since the constructor of tabs get called once
  ionViewWillEnter(){
+
   this.accountNum = parseInt(window.sessionStorage.getItem('currectAccount'));
+  this.fullEndpoint = this.mmi_request.clientDomainUrl+'accounts/'+this.accountNum+'.json?auth='+window.sessionStorage.getItem('idToken');
   this.getAccounts(this.accountNum);
 }
 
   public getAccounts(account){
 
-          let tempurl = this.mmi_request.clientDomainUrl+'accounts/'+account+'.json?auth='+window.sessionStorage.getItem('idToken');
-          this.mmi_request.apiGet(tempurl).subscribe((data) => {
-
-               this.accountData = data;
-
-          },
-          (error)=>{
-
-            this.notify.alertCtr('Accounts Error','Could not fetch accounts');
-            this.notify.alert.present();  
-          });
-
+      this.sendGetRequest();
 
   }
 
 
+  private setAccountData(data):void{
+    this.accountData = data;
+  }
+  
+  private sendGetRequest():void{
+  
+    this.mmi_request.apiGet(this.fullEndpoint).subscribe((data) => {
+  
+      this.setAccountData(data);
+    },
+    (error)=>{
+  
+      this.notify.presentAlert('Accounts Error','Could not get the accounts');             
+  
+    });
+  
+  }
 
-  public withdraw(body){
+  private sendPutRequest(body):void{
 
-
-
-    let tempurl = this.mmi_request.clientDomainUrl+'accounts/'+this.accountNum+'.json?auth='+window.sessionStorage.getItem('idToken');
-    this.mmi_request.apiPut(body,tempurl).subscribe((data) => {
+    this.mmi_request.apiPut(body,this.fullEndpoint).subscribe((data) => {
       
       this.amount = null;
-      this.notify.alertCtr('Withdraw','Successful Withdrawn!');
-      this.notify.alert.present();
+      this.notify.presentAlert('Withdraw','Successful Withdrawn!'); 
 
     },
     (error)=>{
 
-      console.log(error);
-      this.notify.alertCtr('Withdraw Error','an error has occurred ');
-      this.notify.alert.present();             
-
+      this.notify.presentAlert('Withdraw Error','an error has occurred '); 
+                  
     });
-
 
   }
 
-  public validate(isoverdraft){
+  private calculateBalanceAndSetTotalAmount():void{
 
-    if(this.amount>0){
+    let total = Number(this.accountData.balance)-Number(this.amount);
+    this.accountData.balance = total;
+   
+  }
+
+private calculateOverdraftAndSetTotalAmount():void{
+
+  let total = Number(this.accountData.overdraft)-Number(this.amount);
+  this.accountData.overdraft = total;
+}
+
+private isAmountValid():boolean{
+
+  if(this.amount>0){
+
+    
+    return true;
+  }
+  else{
+
+    this.notify.presentAlert('Withdraw','Cannot withdraw  '+ 'R'+this.accountData.balance);
+    return false;
+  }
+
+}
+
+private  areYouEntitledToWithdrawOverdraft():boolean{
+
+  if((Number(this.accountData.overdraft)-Number(this.amount)) >=0){
+
+    return true;
+  }
+  else{
+
+    this.notify.presentAlert('Withdraw Overdraft','You are entitled to withdraw '+ 'R'+this.accountData.balance); 
+
+    return false;
+    
+  }
+}
 
 
-      if(isoverdraft){
+private  areYouEntitledToWithdrawBalance():boolean{
 
-        if((Number(this.accountData.overdraft)-Number(this.amount)) >=0){
-          let total = Number(this.accountData.overdraft)-Number(this.amount);
-          this.accountData.overdraft = total;
-        
+  if((Number(this.accountData.balance)-Number(this.amount)) >=0){
+
+    return true;
+  }
+  else{
+
+    this.notify.presentAlert('Withdraw Balance','You are entitled to withdraw '+ 'R'+this.accountData.balance); 
+    
+    return false;
+  }
+}
+public withdraw(body){
+
+    this.sendPutRequest(body);
+
+  }
+
+  public getCash(isoverdraft){
+
+    if(this.isAmountValid()){
+
+
+      if(isoverdraft && this.areYouEntitledToWithdrawOverdraft()){
+
+       
+
+          this.calculateOverdraftAndSetTotalAmount();
           this.withdraw(this.accountData);
-        }
-        else{
 
-          this.notify.alertCtr('Withdraw Overdraft','You are entitled to withdraw '+ 'R'+this.accountData.balance);
-          this.notify.alert.present();
-          
-        }
 
       }
-      else{
+      else if(this.areYouEntitledToWithdrawBalance()){
 
-        if((Number(this.accountData.balance)-Number(this.amount)) >=0){
-          let total = Number(this.accountData.balance)-Number(this.amount);
-          this.accountData.balance = total;
-         
-          this.withdraw(this.accountData);
-        }
-        else{
 
-          this.notify.alertCtr('Withdraw Balance','You are entitled to withdraw '+ 'R'+this.accountData.balance);
-          this.notify.alert.present();
           
-
-        }
+          this.calculateBalanceAndSetTotalAmount();
+          this.withdraw(this.accountData);
+      
       }
 
     }
-    else{
-
-      this.notify.alertCtr('Withdraw','Cannot withdraw  '+ 'R'+this.accountData.balance);
-      this.notify.alert.present();
-    }
+ 
 
   }
 

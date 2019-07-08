@@ -19,6 +19,7 @@ export class DepositPage {
   amount:number;
   accountNum:number;
   accountData:any={balance: 0,overdraft: 0};
+  fullEndpoint:string;
   constructor( private app:App ,public navCtrl: NavController, public navParams: NavParams, public mmi_request:MmiServiceProvider,public notify: MmiNotifyProvider) {
 
   }
@@ -26,62 +27,96 @@ export class DepositPage {
  // using this since the constructor of tabs get called once
  ionViewWillEnter(){
   this.accountNum = parseInt(window.sessionStorage.getItem('currectAccount'));
-  this.getAccounts(this.accountNum);
+  this.fullEndpoint = this.mmi_request.clientDomainUrl+'accounts/'+this.accountNum+'.json?auth='+window.sessionStorage.getItem('idToken');
+  this.getAccounts();
 }
 
-  public getAccounts(account){
+private setAccountData(data):void{
+  this.accountData = data;
+}
+
+private sendGetRequest():void{
+
+  this.mmi_request.apiGet(this.fullEndpoint).subscribe((data) => {
+
+    this.setAccountData(data);
+  },
+  (error)=>{
+
+    this.notify.presentAlert('Accounts Error','Could not get the accounts');             
+
+  });
+
+}
+
+private sendPutRequest(body):void{
+
+  this.mmi_request.apiPut(body,this.fullEndpoint).subscribe((data) => {
+          
+    this.amount = null;
+    this.notify.presentAlert('Deposit','Successful Saved!');  
+  },
+  (error)=>{
+
+    this.notify.presentAlert('Deposit','Error occured!'); 
+  });
+}
+
+private isAmountValid():boolean{
+
+  if(this.amount>0){
+
+    
+    return true;
+  }
+  else{
+
+    this.notify.presentAlert('Deposit','Invalid Amount'); 
+    return false;
+  }
+
+}
+
+private calculateAndSetTotalAmount():void{
+
+  let total = Number(this.amount)+Number(this.accountData.balance);
+    
+  this.accountData.balance = total;
+}
+public getAccounts(){
 
     try {
-          let tempurl = this.mmi_request.clientDomainUrl+'accounts/'+account+'.json?auth='+window.sessionStorage.getItem('idToken');
-          this.mmi_request.apiGet(tempurl).subscribe((data) => {
 
-               this.accountData = data;
-
-          },
-          (error)=>{
-
-          console.log(error);              
-
-          });
+          this.sendGetRequest();
 
     } catch (error) {
       
+      this.notify.presentAlert('Accounts Error',error);  
     }
   }
 
-  public GotoMain(){
+public GotoMain(){
 
  
     this.app.getRootNav().push(TabsPage)
   }
 
-  public deposit(){
+public deposit(){
 
-    if(this.amount>0){
+    try {
+      
+      if(this.isAmountValid()){
 
-      let total = Number(this.amount)+Number(this.accountData.balance);
-    
-      this.accountData.balance = total;
-
-        let tempurl = this.mmi_request.clientDomainUrl+'accounts/'+this.accountNum+'.json?auth='+window.sessionStorage.getItem('idToken');
-        this.mmi_request.apiPut(this.accountData,tempurl).subscribe((data) => {
-          
-          this.amount = null;
-          this.notify.alertCtr('Deposit','Successful Saved!');
-          this.notify.alert.present();
-
-        },
-        (error)=>{
-
-          this.notify.alertCtr('Deposit','Error occured!');
-          this.notify.alert.present();
-        });
-
-
+        this.calculateAndSetTotalAmount();
+        this.sendPutRequest(this.accountData);
+  
+  
+      }
+    } catch (error) {
+      
+        this.notify.presentAlert('Accounts Error',error);  
     }
-    else{
 
-    }
 
   }
 }

@@ -19,6 +19,7 @@ export class AccountCreatePage {
   accountNum:any;
   clientData:any={accounts:[],age:0,name:''};// giving default values if it happens that json structure changes from api
   accountData:any={balance: 0,overdraft: 0};
+  fullEndpoint:string;
   constructor(public navCtrl: NavController, public navParams: NavParams,public mmi_request:MmiServiceProvider,public notify: MmiNotifyProvider,public alertCtrl: AlertController) {
 
 
@@ -28,53 +29,74 @@ export class AccountCreatePage {
   // using this since the constructor of tabs get called once
   ionViewWillEnter(){
     this.accountNum = Math.floor(1000000 + Math.random() * 900000);
+    this.fullEndpoint = this.mmi_request.clientDomainUrl+'clients/'+window.sessionStorage.getItem('localId')+'.json?auth='+window.sessionStorage.getItem('idToken');
     this.getClientData();
   }
 
 
-
-  public saveNewAcc(){
+  private isvalidateAccount():boolean{
 
     if(this.accountNum>0){
       
+            
+            return true;
+      }
+      else{
+  
+            this.notify.presentAlert('Accounts ','Cannot be negative number or empty');
+            return false;
+      }
+
+  }
+
+  private pushAccountTolist():void{
+
     this.clientData.accounts.push(parseFloat(this.accountNum));
-    let tempurl = this.mmi_request.clientDomainUrl+'clients/'+window.sessionStorage.getItem('localId')+'.json?auth='+window.sessionStorage.getItem('idToken');
+  }
 
-    this.mmi_request.apiPut(this.clientData,tempurl).subscribe((data) => {
-   
-            this.accountNum = null;
-            this.notify.alertCtr('Account','Successful Saved!');
-            this.notify.alert.present();
-      },
-      (error)=>{
-        
-            this.notify.alertCtr('Accounts Error','Could not save');
-            this.notify.alert.present();  
+  private getClientDataASBody():any{
 
-        
-      });
+    return this.clientData;
+  }
 
+ private sendRequest(body):void{
+
+    this.mmi_request.apiPut(body,this.fullEndpoint).subscribe((data) => {
+    
+        this.accountNum = null;
+        this.notify.presentAlert('Account','Successful Saved!');
+
+    },
+    (error)=>{
+
+        this.notify.presentAlert('Accounts Error','Could not save');
+
+    });
+
+ }
+
+  public saveNewAcc(){
+
+    if(this.isvalidateAccount()){
+      this.pushAccountTolist();
+      this.sendRequest(this.getClientDataASBody());
     }
-    else{
-
-          this.notify.alertCtr('Accounts ','Cannot be negative number or empty');
-          this.notify.alert.present();  
-    }
+    
+ 
   }
 
   public getClientData(){
 
-          let tempurl = this.mmi_request.clientDomainUrl+'clients/'+window.sessionStorage.getItem('localId')+'.json?auth='+window.sessionStorage.getItem('idToken');
 
-          this.mmi_request.apiGet(tempurl).subscribe((data) => {
+          this.mmi_request.apiGet(this.fullEndpoint).subscribe((data) => {
                   
                 this.clientData = data;
 
           },
           (error)=>{
 
-              this.notify.alertCtr('Accounts Error','Could not fetch accounts');
-              this.notify.alert.present();            
+         
+              this.notify.presentAlert('Accounts Error','Could not fetch accounts');     
 
           });
 

@@ -14,8 +14,8 @@ and Angular DI.
 @Injectable()
 export class MmiServiceProvider {
 
-authUrl:any='https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key=AIzaSyAR4Yezxk7Ao4qeFntu7tIvE7pH28Eh64Y';
-clientDomainUrl:any = 'https://momentum-retail-practical-test.firebaseio.com/';
+public authUrl:any='https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key=AIzaSyAR4Yezxk7Ao4qeFntu7tIvE7pH28Eh64Y';
+public clientDomainUrl:any = 'https://momentum-retail-practical-test.firebaseio.com/';
 
 constructor(public http: Http) {
 
